@@ -1,0 +1,15 @@
+{
+  "name": "pi-sdk-demo",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "TypeScript project demonstrating pi-coding-agent SDK usage",
+  "scripts": {
+    "ex:minimal": "bun run examples/01-minimal.ts",
+    "ex:multi-turn": "bun run examples/02-multi-turn.ts",
+    "ex:read-only": "bun run examples/03-read-only.ts",
+    "ex:enhance": "bun run examples/04-enhance.ts"
+  },
+  "dependencies": {
+    "@mariozechner/pi-coding-agent": "^0.65.0"
+  }
+}
