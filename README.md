@@ -2,7 +2,71 @@
 
 Demonstrates programmatic usage of `@mariozechner/pi-coding-agent`.
 
-## Run Examples
+## Quick Start
+
+### HTTP API
+
+```bash
+# Start the server
+bun run start
+
+# Create session + send first prompt (returns session id)
+curl -X POST http://localhost:3000/pi \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Hello, help me with my project"}'
+
+# Continue conversation with that session id
+curl -X POST http://localhost:3000/pi-reply \
+  -H "Content-Type: application/json" \
+  -d '{"id":"session-id-here","prompt":"Continue with the next step"}'
+```
+
+### MCP Server
+
+```bash
+# Run the MCP server (stdio-based)
+bun run start:mcp
+```
+
+Configure in your MCP client (e.g., Claude Desktop, Cursor):
+
+```json
+"mcpServers": {
+  "pi-coding-agent": {
+    "command": "bun",
+    "args": ["run", "api/mcp-server.ts"],
+    "cwd": "/path/to/pi-sdk-demo"
+  }
+}
+```
+
+---
+
+## API Reference
+
+- **OpenAPI Spec**: `GET /openapi.yaml` or `GET /openapi.json`
+
+### HTTP Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/pi` | Create session + send first prompt |
+| `POST` | `/pi-reply` | Continue session with prompt |
+| `GET` | `/openapi.yaml` | OpenAPI spec as YAML |
+| `GET` | `/openapi.json` | OpenAPI spec as JSON |
+
+### MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| `pi` | Create session + send first prompt |
+| `pi-reply` | Continue session (requires session `id`) |
+
+---
+
+## Examples
+
+Run the example scripts:
 
 ```bash
 bun run examples/01-minimal.ts
@@ -11,68 +75,36 @@ bun run examples/03-read-only.ts
 bun run examples/04-enhance.ts
 bun run examples/05-execute-skill.ts
 bun run examples/06-skill-filtering.ts
+bun run examples/07-list-extensions.ts
+bun run examples/08-web-search.ts
 ```
-
-## HTTP API Server
-
-Expose pi-coding-agent as a REST API.
-
-### Start
-
-```bash
-npm start
-```
-
-The API runs on `http://localhost:3000`.
-
-### Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/sessions` | Create a new agent session |
-| `GET` | `/sessions/:id` | Get session info |
-| `DELETE` | `/sessions/:id` | Delete/dispose session |
-| `POST` | `/sessions/:id/prompt` | Send a prompt to the session |
-| `GET` | `/sessions/:id/events` | SSE stream for session events |
-| `GET` | `/health` | Health check |
-
-### Usage
-
-```bash
-# Create session (returns session_id)
-SESSION_ID=$(curl -s -X POST http://localhost:3000/sessions | jq -r '.id')
-echo "Session: $SESSION_ID"
-
-# Start event stream (in another terminal)
-curl -N http://localhost:3000/sessions/$SESSION_ID/events
-
-# Send prompt
-curl -X POST http://localhost:3000/sessions/$SESSION_ID/prompt \
-  -H "Content-Type: application/json" \
-  -d '{"prompt": "What files are in the current directory?"}'
-
-# Delete session
-curl -X DELETE http://localhost:3000/sessions/$SESSION_ID
-```
-
-## Tests
-
-```bash
-npm test
-```
-
-14 tests covering all API endpoints.
-
-## Examples
 
 | File | Description |
 |------|-------------|
 | `01-minimal.ts` | Basic session with user settings from `~/.pi/agent` |
 | `02-multi-turn.ts` | Multi-turn conversation with context preservation |
 | `03-read-only.ts` | Safe mode with only read tools |
-| `04-enhance.ts` | Prompt enhancement via `/enhance` command from `pi-prompt-enhancer` extension |
+| `04-enhance.ts` | Prompt enhancement via `/enhance` command |
 | `05-execute-skill.ts` | Execute skills using the SDK |
 | `06-skill-filtering.ts` | Filter, replace, or add custom skills |
+| `07-list-extensions.ts` | List installed extensions by package |
+| `08-web-search.ts` | Perform web searches via SDK |
+
+---
+
+## Tests
+
+```bash
+bun test
+```
+
+---
+
+## Configuration
+
+Sessions use settings from `~/.pi/agent`. Ensure this directory exists with your desired configuration (API keys, model preferences, etc.).
+
+---
 
 ## Links
 

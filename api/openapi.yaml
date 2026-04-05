@@ -2,53 +2,53 @@ openapi: 3.1.0
 info:
   title: Pi Coding Agent API
   description: |
-    REST API for the pi-coding-agent session management.
-    
-    This API allows you to create and manage AI coding agent sessions programmatically.
-    
-    ## Authentication
-    Currently no authentication is required. Run behind a firewall or add your own auth layer.
-    
-    ## Rate Limiting
-    No rate limiting is enforced. Be responsible.
-    
-    ## Error Handling
-    All errors return a JSON body with an `error` field describing what went wrong.
+    REST API for pi-coding-agent session management.
+
+    Provides two actions: create a session with an initial prompt, or continue the conversation using a session ID.
   version: 1.0.0
   contact:
     name: pi-coding-agent
-    url: https://github.com/badlogic/pi-mono
-  license:
-    name: MIT
-    url: https://opensource.org/licenses/MIT
 
 servers:
   - url: http://localhost:3000
     description: Local development server
 
-tags:
-  - name: Sessions
-    description: Agent session management
-  - name: Health
-    description: Server health checks
-
 paths:
-  /sessions:
+  /pi:
     post:
-      operationId: createSession
-      summary: Create a new agent session
+      operationId: createSessionAndPrompt
+      summary: Create session and send first prompt
       description: |
-        Creates a new AI coding agent session with default settings loaded from `~/.pi/agent`.
-        The session is initialized with all available skills and the configured AI provider.
+        Creates a new AI coding agent session and sends the first prompt.
+        Returns the session ID for use in subsequent /pi-reply calls.
       tags:
         - Sessions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PiRequest"
+            example:
+              prompt: "What files are in my project?"
+              timeout: 120000
       responses:
-        "201":
-          description: Session created successfully
+        "200":
+          description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CreateSessionResponse"
+                $ref: "#/components/schemas/PiResponse"
+              example:
+                id: "550e8400-e29b-41d4-a716-446655440000"
+                events: []
+                eventCount: 15
+        "400":
+          description: Missing prompt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "500":
           description: Internal server error
           content:
@@ -56,97 +56,34 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /sessions/{id}:
-    get:
-      operationId: getSession
-      summary: Get session information
-      description: |
-        Returns basic information about a session, including whether it exists.
-        Note: This does not return the session's conversation history.
-      tags:
-        - Sessions
-      parameters:
-        - $ref: "#/components/parameters/SessionId"
-      responses:
-        "200":
-          description: Session found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SessionInfoResponse"
-        "404":
-          description: Session not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-    delete:
-      operationId: deleteSession
-      summary: Delete/dispose a session
-      description: |
-        Permanently disposes a session and releases all associated resources.
-        The session can no longer be used after this call.
-      tags:
-        - Sessions
-      parameters:
-        - $ref: "#/components/parameters/SessionId"
-      responses:
-        "200":
-          description: Session deleted successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MessageResponse"
-        "404":
-          description: Session not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /sessions/{id}/prompt:
+  /pi-reply:
     post:
-      operationId: sendPrompt
-      summary: Send a prompt to a session
+      operationId: continueSession
+      summary: Continue an existing session
       description: |
-        Sends a text prompt to the agent session. The agent will process the prompt
-        asynchronously. Subscribe to the `/sessions/{id}/events` endpoint to receive
-        real-time updates about the agent's progress and responses.
-        
-        ## Usage Pattern
-        1. Send your prompt via this endpoint
-        2. Subscribe to `/sessions/{id}/events` (SSE stream)
-        3. Receive events as the agent works
-        4. Events include: thinking, tool calls, responses, errors
+        Send a continuation prompt to an existing session.
+        Requires the session ID from a previous /pi call.
       tags:
         - Sessions
-      parameters:
-        - $ref: "#/components/parameters/SessionId"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PromptRequest"
-            examples:
-              simple:
-                summary: Simple prompt
-                value:
-                  prompt: "What files are in the current directory?"
-              coding:
-                summary: Coding task
-                value:
-                  prompt: "Create a new TypeScript file that exports a hello world function"
+              $ref: "#/components/schemas/PiReplyRequest"
+            example:
+              id: "550e8400-e29b-41d4-a716-446655440000"
+              prompt: "Continue with the next step"
+              timeout: 120000
       responses:
         "200":
-          description: Prompt sent successfully
+          description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MessageResponse"
+                $ref: "#/components/schemas/PiResponse"
         "400":
-          description: Missing or invalid request body
+          description: Missing id or prompt
           content:
             application/json:
               schema:
@@ -157,182 +94,123 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
-  /sessions/{id}/events:
+  /openapi.yaml:
     get:
-      operationId: streamEvents
-      summary: Subscribe to session events (SSE)
-      description: |
-        Opens a Server-Sent Events (SSE) stream for real-time session updates.
-        Subscribe to this endpoint before sending prompts to receive all events.
-        
-        ## Event Types
-        The stream emits JSON events with the following structure:
-        ```json
-        {
-          "type": "event-type",
-          "data": { ... }
-        }
-        ```
-        
-        ## Common Event Types
-        - `thinking` - Agent is processing
-        - `tool_call` - Agent invoked a tool
-        - `tool_result` - Tool execution completed
-        - `message` - Agent sent a message
-        - `error` - An error occurred
-        - `done` - Agent finished processing
-        
-        ## Heartbeat
-        The server sends a `: heartbeat\n\n` comment every 30 seconds to keep
-        the connection alive through proxies and load balancers.
+      operationId: getOpenApiSpec
+      summary: Get OpenAPI specification
+      description: Returns this OpenAPI specification file
       tags:
-        - Sessions
-      parameters:
-        - $ref: "#/components/parameters/SessionId"
+        - Documentation
       responses:
         "200":
-          description: SSE stream established
+          description: OpenAPI YAML file
           content:
-            text/event-stream:
+            application/x-yaml:
               schema:
                 type: string
-                description: SSE data format
-        "404":
-          description: Session not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
 
-  /health:
+  /openapi.json:
     get:
-      operationId: healthCheck
-      summary: Health check endpoint
-      description: |
-        Returns the current health status of the server and basic statistics.
-        Use this to verify the server is running and check how many active
-        sessions exist.
+      operationId: getOpenApiJson
+      summary: Get OpenAPI specification as JSON
+      description: Returns the OpenAPI specification in JSON format
       tags:
-        - Health
+        - Documentation
       responses:
         "200":
-          description: Server is healthy
+          description: OpenAPI JSON file
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/HealthResponse"
+                type: object
 
 components:
-  parameters:
-    SessionId:
-      name: id
-      in: path
-      required: true
-      description: The unique session identifier
-      schema:
-        type: string
-        format: uuid
-        example: "550e8400-e29b-41d4-a716-446655440000"
-
   schemas:
-    ErrorResponse:
-      type: object
-      required:
-        - error
-      properties:
-        error:
-          type: string
-          description: Human-readable error message
-          example: "Session not found"
-
-    CreateSessionResponse:
-      type: object
-      required:
-        - id
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: The unique identifier for the newly created session
-          example: "550e8400-e29b-41d4-a716-446655440000"
-
-    SessionInfoResponse:
-      type: object
-      required:
-        - id
-        - exists
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: The session identifier
-          example: "550e8400-e29b-41d4-a716-446655440000"
-        exists:
-          type: boolean
-          description: Always `true` if the session was found
-          example: true
-
-    MessageResponse:
-      type: object
-      required:
-        - message
-      properties:
-        message:
-          type: string
-          description: Status message
-          example: "Session deleted"
-
-    PromptRequest:
+    PiRequest:
       type: object
       required:
         - prompt
       properties:
         prompt:
           type: string
-          description: |
-            The text prompt to send to the agent. This can be any text that
-            you would normally type to the agent in the pi TUI.
-          example: "What files are in the current directory?"
-          minLength: 1
+          description: The prompt to send to the agent
+        timeout:
+          type: number
+          description: Timeout in ms (default: 120000)
+          default: 120000
 
-    HealthResponse:
+    PiReplyRequest:
       type: object
       required:
-        - status
-        - sessions
+        - id
+        - prompt
       properties:
-        status:
+        id:
           type: string
-          description: Server health status
-          enum:
-            - ok
-          example: ok
-        sessions:
-          type: integer
-          description: Number of currently active sessions
-          example: 3
-          minimum: 0
+          format: uuid
+          description: Session ID to continue
+        prompt:
+          type: string
+          description: The continuation prompt to send
+        timeout:
+          type: number
+          description: Timeout in ms (default: 120000)
+          default: 120000
+
+    PiResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Session ID
+        events:
+          type: array
+          items:
+            type: object
+          description: Session events
+        eventCount:
+          type: number
+          description: Number of events
 
     SessionEvent:
       type: object
-      required:
-        - type
       properties:
         type:
           type: string
-          description: |
-            The type of event. Common types include:
-            - `thinking` - Agent is processing
-            - `tool_call` - Agent invoked a tool
-            - `tool_result` - Tool result
-            - `message` - Text message
-            - `error` - Error occurred
-            - `done` - Processing complete
-          example: "message"
+          enum: [thinking, tool_call, tool_result, message, error, done]
+          description: Event type
         data:
           type: object
-          description: Event-specific data payload
-          additionalProperties: true
+          description: Event data
 
-security: []
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Success message
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error description
+
+  parameters:
+    SessionId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Session identifier

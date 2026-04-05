@@ -5,13 +5,15 @@
   "description": "TypeScript project demonstrating pi-coding-agent SDK usage",
   "scripts": {
     "postinstall": "GLOBAL_MODULES=$(npm root -g) && SCRIPT_DIR=$(pwd) && ln -sf \"$SCRIPT_DIR/node_modules/@mariozechner/pi-coding-agent\" \"$GLOBAL_MODULES/@mariozechner/pi-coding-agent\" && ln -sf \"$SCRIPT_DIR/node_modules/@mariozechner/pi-tui\" \"$GLOBAL_MODULES/@mariozechner/pi-tui\" && ln -sf \"$SCRIPT_DIR/node_modules/@mariozechner/pi-ai\" \"$GLOBAL_MODULES/@mariozechner/pi-ai\" && ln -sf \"$SCRIPT_DIR/node_modules/@sinclair/typebox\" \"$GLOBAL_MODULES/@sinclair/typebox\"",
-    "start": "bun run api/server.ts",
+    "start": "bun run api/http-server.ts",
+    "start:mcp": "bun run api/mcp-server.ts",
     "test": "bun test"
   },
   "dependencies": {
     "@mariozechner/pi-ai": "0.65.0",
     "@mariozechner/pi-coding-agent": "^0.65.0",
     "@mariozechner/pi-tui": "^0.65.0",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@sinclair/typebox": "^0.34.49"
   }
 }
