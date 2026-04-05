@@ -4,11 +4,7 @@
   "type": "module",
   "description": "TypeScript project demonstrating pi-coding-agent SDK usage",
   "scripts": {
-    "ex:minimal": "bun run examples/01-minimal.ts",
-    "ex:multi-turn": "bun run examples/02-multi-turn.ts",
-    "ex:read-only": "bun run examples/03-read-only.ts",
-    "ex:enhance": "bun run examples/04-enhance.ts",
-    "ex:web-search": "bun run examples/08-web-search.ts"
+    "postinstall": "GLOBAL_MODULES=$(npm root -g) && SCRIPT_DIR=$(pwd) && ln -sf \"$SCRIPT_DIR/node_modules/@mariozechner/pi-coding-agent\" \"$GLOBAL_MODULES/@mariozechner/pi-coding-agent\" && ln -sf \"$SCRIPT_DIR/node_modules/@mariozechner/pi-tui\" \"$GLOBAL_MODULES/@mariozechner/pi-tui\" && ln -sf \"$SCRIPT_DIR/node_modules/@mariozechner/pi-ai\" \"$GLOBAL_MODULES/@mariozechner/pi-ai\" && ln -sf \"$SCRIPT_DIR/node_modules/@sinclair/typebox\" \"$GLOBAL_MODULES/@sinclair/typebox\""
   },
   "dependencies": {
     "@mariozechner/pi-ai": "0.65.0",
