@@ -8,27 +8,51 @@
 
 import { createSession } from "./lib.js";
 
+function getPackageName(ext: { path: string; sourceInfo: { source: string } }): string {
+  const source = ext.sourceInfo.source;
+  
+  // npm:pi-context -> pi-context
+  // git:github.com/user/repo -> github.com/user/repo
+  const sourceName = source.split(":").pop()!;
+  
+  // For npm packages (no slashes or starts with @), use source name directly
+  if (!sourceName.includes("/") || sourceName.startsWith("@")) {
+    return sourceName;
+  }
+  
+  // For git URLs, extract just the repo name (last part after /)
+  // e.g., github.com/davebcn87/pi-autoresearch -> pi-autoresearch
+  const parts = sourceName.split("/");
+  return parts[parts.length - 1] || sourceName;
+}
+
 async function main() {
   console.log("\n=== List Extensions ===\n");
 
   const { extensionsResult } = await createSession();
 
+  // Group by package name
+  const byPackage = new Map<string, typeof extensionsResult.extensions>();
+  for (const ext of extensionsResult.extensions) {
+    const pkg = getPackageName(ext);
+    if (!byPackage.has(pkg)) byPackage.set(pkg, []);
+    byPackage.get(pkg)!.push(ext);
+  }
 
-
-  const extensions = extensionsResult.extensions;
+  const extensions = Array.from(byPackage.entries())
+    .sort(([a], [b]) => a.localeCompare(b));
   
   if (extensions.length === 0) {
     console.log("No extensions installed.");
     return;
   }
 
-  const sorted = [...extensions].sort((a, b) =>
-    (a.sourceInfo.source.split(":").pop() || a.path).localeCompare(b.sourceInfo.source.split(":").pop() || b.path)
-  );
-
-  for (const ext of sorted) {
-    const name = ext.sourceInfo.source.split(":").pop() || ext.path;
-    console.log(`  - ${name}`);
+  for (const [pkg, exts] of extensions) {
+    if (exts.length > 1) {
+      console.log(`  - ${pkg} (${exts.length} extensions)`);
+    } else {
+      console.log(`  - ${pkg}`);
+    }
   }
 
   console.log(`\n${extensions.length} extensions installed.`);
