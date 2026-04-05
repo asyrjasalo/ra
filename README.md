@@ -20,7 +20,7 @@ Expose pi-coding-agent as a REST API.
 ### Start
 
 ```bash
-bun run api
+npm start
 ```
 
 The API runs on `http://localhost:3000`.
@@ -54,6 +54,14 @@ curl -X POST http://localhost:3000/sessions/$SESSION_ID/prompt \
 # Delete session
 curl -X DELETE http://localhost:3000/sessions/$SESSION_ID
 ```
+
+## Tests
+
+```bash
+npm test
+```
+
+14 tests covering all API endpoints.
 
 ## Examples
 
