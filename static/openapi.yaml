@@ -131,6 +131,24 @@ paths:
               schema:
                 type: object
 
+  /health:
+    get:
+      operationId: healthCheck
+      summary: Health check
+      description: Returns the health status of the server and number of active sessions
+      tags:
+        - Health
+      responses:
+        "200":
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              example:
+                status: ok
+                activeSessions: 0
+
 components:
   schemas:
     PiRequest:
@@ -204,6 +222,17 @@ components:
         error:
           type: string
           description: Error description
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Health status
+          enum: [ok]
+        activeSessions:
+          type: number
+          description: Number of active sessions
 
   parameters:
     SessionId:

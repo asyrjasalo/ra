@@ -97,7 +97,7 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
 
     // Route: GET /openapi.yaml - Return OpenAPI spec as YAML
     if (path === "/openapi.yaml" && method === "GET") {
-      const spec = readFileSync(join(import.meta.dir, "openapi.yaml"), "utf-8");
+      const spec = readFileSync(join(import.meta.dir, "..", "static", "openapi.yaml"), "utf-8");
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/x-yaml");
       res.end(spec);
@@ -106,7 +106,7 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
 
     // Route: GET /openapi.json - Return OpenAPI spec as JSON
     if (path === "/openapi.json" && method === "GET") {
-      const spec = readFileSync(join(import.meta.dir, "openapi.yaml"), "utf-8");
+      const spec = readFileSync(join(import.meta.dir, "..", "static", "openapi.yaml"), "utf-8");
       const json = yamlToJson(spec);
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/json");
@@ -114,9 +114,17 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
       return;
     }
 
+    // Route: GET /health - Health check
+    if (path === "/health" && method === "GET") {
+      sendResponse(res, 200, { status: "ok", activeSessions: sessions.size });
+      return;
+    }
+
     sendResponse(res, 404, { error: "Not found" });
   } catch (err) {
-    console.error("Request error:", err);
+    if (process.env.NODE_ENV !== "test") {
+      console.error("Request error:", err);
+    }
     sendResponse(res, 500, { error: "Internal server error" });
   }
 }
@@ -259,11 +267,11 @@ async function handlePiReply(body: Record<string, unknown>): Promise<{ status: n
   };
 }
 
-const isMain = process.argv[1]?.endsWith("api/server.ts");
+const isMain = process.argv[1]?.endsWith("api/http-server.ts");
 
 if (isMain) {
   startServer().then(() => {
     console.log(`Pi Coding Agent API running at http://localhost:${PORT}`);
-    console.log("Endpoints: POST /pi, POST /pi-reply, GET /openapi.yaml, GET /openapi.json");
+    console.log("Endpoints: POST /pi, POST /pi-reply, GET /openapi.yaml, GET /openapi.json, GET /health");
   });
 }
