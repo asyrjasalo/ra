@@ -44,7 +44,7 @@ Create a new session and send the first prompt. Returns the session ID.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `prompt` | string | Yes | The prompt to send to the agent |
-| `timeout` | number | No | Timeout in ms (default: 120000) |
+| `timeout` | number | No | Timeout in ms (default: 120000, max: 600000) |
 
 **Response:**
 
@@ -77,7 +77,7 @@ Send a continuation prompt to an existing session.
 |-------|------|----------|-------------|
 | `id` | string | Yes | Session ID to continue |
 | `prompt` | string | Yes | The continuation prompt |
-| `timeout` | number | No | Timeout in ms (default: 120000) |
+| `timeout` | number | No | Timeout in ms (default: 120000, max: 600000) |
 
 **Response:**
 
@@ -109,9 +109,10 @@ The response body contains a JSON string with:
 | Type | Description |
 |------|-------------|
 | `thinking` | Agent is processing |
+| `message_update` | Text delta or full message (e.g., `text_delta`) |
 | `tool_call` | Tool invocation (read, bash, edit, etc.) |
 | `tool_result` | Tool execution result |
-| `message` | Agent text response |
+| `message` | Full message (legacy format) |
 | `error` | Error occurred |
 | `done` | Agent finished |
 

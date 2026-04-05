@@ -92,17 +92,19 @@ bun run examples/08-web-search.ts
 
 ---
 
+## Configuration
+
+Sessions use settings from `~/.pi/agent` by default. Override with `PI_AGENT_DIR`:
+
+```bash
+PI_AGENT_DIR=/path/to/config bun run start
+```
+
 ## Tests
 
 ```bash
 bun test
 ```
-
----
-
-## Configuration
-
-Sessions use settings from `~/.pi/agent`. Ensure this directory exists with your desired configuration (API keys, model preferences, etc.).
 
 ---
 
