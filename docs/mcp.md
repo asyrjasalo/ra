@@ -30,7 +30,7 @@ bun run start:mcp
 
 ### `pi`
 
-Create a new session and send the first prompt. Returns the session ID.
+Create a new session and send the first prompt. Returns the session ID and the agent's text response.
 
 **Arguments:**
 
@@ -44,7 +44,7 @@ Create a new session and send the first prompt. Returns the session ID.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `prompt` | string | Yes | The prompt to send to the agent |
-| `timeout` | number | No | Timeout in ms (default: 120000, max: 600000) |
+| `timeout` | number | No | Timeout in ms (default: 120000) |
 
 **Response:**
 
@@ -52,7 +52,7 @@ Create a new session and send the first prompt. Returns the session ID.
 {
   "content": [{
     "type": "text",
-    "text": "{\"id\":\"550e8400-e29b-41d4-a716-446655440000\",\"events\":[...],\"eventCount\":15}"
+    "text": "{\"id\":\"550e8400-e29b-41d4-a716-446655440000\",\"response\":\"Based on my analysis...\"}"
   }]
 }
 ```
@@ -77,7 +77,7 @@ Send a continuation prompt to an existing session.
 |-------|------|----------|-------------|
 | `id` | string | Yes | Session ID to continue |
 | `prompt` | string | Yes | The continuation prompt |
-| `timeout` | number | No | Timeout in ms (default: 120000, max: 600000) |
+| `timeout` | number | No | Timeout in ms (default: 120000) |
 
 **Response:**
 
@@ -85,7 +85,7 @@ Send a continuation prompt to an existing session.
 {
   "content": [{
     "type": "text",
-    "text": "{\"id\":\"550e8400-...\",\"events\":[...],\"eventCount\":8}"
+    "text": "{\"id\":\"550e8400-...\",\"response\":\"I'll refactor the core module...\"}"
   }]
 }
 ```
@@ -99,31 +99,7 @@ The response body contains a JSON string with:
 ```json
 {
   "id": "session-uuid",
-  "events": [...],
-  "eventCount": 15
-}
-```
-
-### Event Types
-
-| Type | Description |
-|------|-------------|
-| `thinking` | Agent is processing |
-| `message_update` | Text delta or full message (e.g., `text_delta`) |
-| `tool_call` | Tool invocation (read, bash, edit, etc.) |
-| `tool_result` | Tool execution result |
-| `message` | Full message (legacy format) |
-| `error` | Error occurred |
-| `done` | Agent finished |
-
-### Example Event
-
-```json
-{
-  "type": "message",
-  "data": {
-    "content": "Here's what I found..."
-  }
+  "response": "The agent's text response to the prompt"
 }
 ```
 

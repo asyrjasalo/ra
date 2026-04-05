@@ -104,8 +104,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       // Execute prompt
       const events: unknown[] = [];
+      const responseParts: string[] = [];
       const unsubscribe = session.subscribe((event) => {
         events.push(event);
+        // Extract text deltas from assistant messages
+        if (
+          event.type === "message_update" &&
+          event.assistantMessageEvent?.type === "text_delta"
+        ) {
+          responseParts.push(event.assistantMessageEvent.delta);
+        }
       });
 
       await Promise.race([
@@ -115,11 +123,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       unsubscribe();
 
+      const response = responseParts.join("");
+
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify({ id, events, eventCount: events.length }),
+            text: JSON.stringify({ id, response }),
           },
         ],
       };
@@ -148,8 +158,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       // Execute prompt
       const events: unknown[] = [];
+      const responseParts: string[] = [];
       const unsubscribe = session.subscribe((event) => {
         events.push(event);
+        // Extract text deltas from assistant messages
+        if (
+          event.type === "message_update" &&
+          event.assistantMessageEvent?.type === "text_delta"
+        ) {
+          responseParts.push(event.assistantMessageEvent.delta);
+        }
       });
 
       await Promise.race([
@@ -159,11 +177,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       unsubscribe();
 
+      const response = responseParts.join("");
+
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify({ id, events, eventCount: events.length }),
+            text: JSON.stringify({ id, response }),
           },
         ],
       };

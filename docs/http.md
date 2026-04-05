@@ -28,7 +28,7 @@ http://localhost:3000
 
 ### POST /pi
 
-Create a new session and send the first prompt. Returns the session ID and all events.
+Create a new session and send the first prompt. Returns the session ID and the agent's text response.
 
 **Request:**
 
@@ -41,17 +41,21 @@ curl -X POST http://localhost:3000/pi \
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `prompt` | string | Yes | The prompt to send |
-| `timeout` | number | No | Timeout in ms (default: 120000, max: 600000) |
+| `timeout` | number | No | Timeout in ms (default: 120000) |
 
 **Response:**
 
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
-  "events": [...],
-  "eventCount": 15
+  "response": "Based on my analysis, the current directory contains:\n\n- api/\n- examples/\n- static/\n- tests/"
 }
 ```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Session ID for subsequent requests |
+| `response` | string | The agent's text response to the prompt |
 
 | Status | Description |
 |--------|-------------|
@@ -77,17 +81,21 @@ curl -X POST http://localhost:3000/pi-reply \
 |-------|------|----------|-------------|
 | `id` | string | Yes | Session ID to continue |
 | `prompt` | string | Yes | The continuation prompt |
-| `timeout` | number | No | Timeout in ms (default: 120000, max: 600000) |
+| `timeout` | number | No | Timeout in ms (default: 120000) |
 
 **Response:**
 
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
-  "events": [...],
-  "eventCount": 8
+  "response": "I'll continue with the next step..."
 }
 ```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Session ID |
+| `response` | string | The agent's text response to the prompt |
 
 | Status | Description |
 |--------|-------------|
@@ -118,6 +126,25 @@ curl http://localhost:3000/openapi.json
 
 ---
 
+### GET /health
+
+Health check endpoint.
+
+```bash
+curl http://localhost:3000/health
+```
+
+**Response:**
+
+```json
+{
+  "status": "ok",
+  "activeSessions": 0
+}
+```
+
+---
+
 ## Error Responses
 
 ```json
@@ -131,22 +158,6 @@ curl http://localhost:3000/openapi.json
 | `400` | Bad request (missing required fields) |
 | `404` | Resource not found |
 | `500` | Internal server error |
-
----
-
-## Event Types
-
-Events returned in responses:
-
-| Type | Description |
-|------|-------------|
-| `thinking` | Agent is processing |
-| `message_update` | Text delta or full message (e.g., `text_delta`) |
-| `tool_call` | Tool invocation (read, bash, edit, etc.) |
-| `tool_result` | Tool execution result |
-| `message` | Full message (legacy format) |
-| `error` | Error occurred |
-| `done` | Agent finished |
 
 ---
 

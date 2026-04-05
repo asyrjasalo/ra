@@ -210,7 +210,8 @@ describe("MCP Server", () => {
       expect(result.content[0].type).toBe("text");
       const parsed = JSON.parse(result.content[0].text);
       expect(parsed.id).toBeDefined();
-      expect(parsed.eventCount).toBeDefined();
+      expect(parsed.response).toBeDefined();
+      expect(typeof parsed.response).toBe("string");
     }, 120000);
 
     test("returns error for missing prompt", async () => {

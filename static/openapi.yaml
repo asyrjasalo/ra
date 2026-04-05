@@ -41,8 +41,14 @@ paths:
                 $ref: "#/components/schemas/PiResponse"
               example:
                 id: "550e8400-e29b-41d4-a716-446655440000"
-                events: []
-                eventCount: 15
+                response: "What files are in the current directory?
+
+Based on my analysis, the current directory contains:
+
+- api/
+- examples/
+- static/
+- tests/"
         "400":
           description: Missing prompt
           content:
@@ -189,14 +195,9 @@ components:
           type: string
           format: uuid
           description: Session ID
-        events:
-          type: array
-          items:
-            type: object
-          description: Session events
-        eventCount:
-          type: number
-          description: Number of events
+        response:
+          type: string
+          description: The agent's text response to the prompt
 
     SessionEvent:
       type: object

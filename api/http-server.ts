@@ -211,8 +211,16 @@ async function handlePi(body: Record<string, unknown>): Promise<{ status: number
   console.log(`[${id}] Session created, prompt: ${prompt.substring(0, 80)}...`);
 
   const events: unknown[] = [];
+  const responseParts: string[] = [];
   const unsubscribe = session.subscribe((event) => {
     events.push(event);
+    // Extract text deltas from assistant messages
+    if (
+      event.type === "message_update" &&
+      event.assistantMessageEvent?.type === "text_delta"
+    ) {
+      responseParts.push(event.assistantMessageEvent.delta);
+    }
   });
 
   await Promise.race([
@@ -222,9 +230,11 @@ async function handlePi(body: Record<string, unknown>): Promise<{ status: number
 
   unsubscribe();
 
+  const response = responseParts.join("");
+
   return {
     status: 200,
-    body: { id, events, eventCount: events.length },
+    body: { id, response },
   };
 }
 
@@ -251,8 +261,16 @@ async function handlePiReply(body: Record<string, unknown>): Promise<{ status: n
   console.log(`[${id}] Reply: ${prompt.substring(0, 80)}...`);
 
   const events: unknown[] = [];
+  const responseParts: string[] = [];
   const unsubscribe = session.subscribe((event) => {
     events.push(event);
+    // Extract text deltas from assistant messages
+    if (
+      event.type === "message_update" &&
+      event.assistantMessageEvent?.type === "text_delta"
+    ) {
+      responseParts.push(event.assistantMessageEvent.delta);
+    }
   });
 
   await Promise.race([
@@ -262,9 +280,11 @@ async function handlePiReply(body: Record<string, unknown>): Promise<{ status: n
 
   unsubscribe();
 
+  const response = responseParts.join("");
+
   return {
     status: 200,
-    body: { id, events, eventCount: events.length },
+    body: { id, response },
   };
 }
 

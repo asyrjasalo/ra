@@ -29,14 +29,11 @@ describe("HTTP Server", () => {
 
   test("GET /health with active sessions shows correct count", async () => {
     // Create a session via POST /pi
-    const createRes = await fetch(`${baseUrl}/pi`, {
+    await fetch(`${baseUrl}/pi`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt: "test", timeout: 1000 }),
     });
-
-    // Ignore result - we just want to verify session count
-    void createRes;
 
     const healthRes = await fetch(`${baseUrl}/health`);
     const healthBody = await healthRes.json();
