@@ -9,6 +9,8 @@ bun run examples/01-minimal.ts
 bun run examples/02-multi-turn.ts
 bun run examples/03-read-only.ts
 bun run examples/04-enhance.ts
+bun run examples/05-execute-skill.ts
+bun run examples/06-skill-filtering.ts
 ```
 
 ## Examples
@@ -19,6 +21,8 @@ bun run examples/04-enhance.ts
 | `02-multi-turn.ts` | Multi-turn conversation with context preservation |
 | `03-read-only.ts` | Safe mode with only read tools |
 | `04-enhance.ts` | Prompt enhancement via `/enhance` command from `pi-prompt-enhancer` extension |
+| `05-execute-skill.ts` | Execute skills using the SDK |
+| `06-skill-filtering.ts` | Filter, replace, or add custom skills |
 
 ## Links
 

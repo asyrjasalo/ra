@@ -19,11 +19,12 @@ export async function createSession() {
   // Load extensions, skills, etc.
   await resourceLoader.reload();
   const extensionsResult = resourceLoader.getExtensions();
+  const skillsResult = resourceLoader.getSkills();
 
   const { session } = await createAgentSession({
     resourceLoader,
     sessionManager: SessionManager.inMemory(),
   });
 
-  return { session, extensionsResult };
+  return { session, extensionsResult, skillsResult };
 }
