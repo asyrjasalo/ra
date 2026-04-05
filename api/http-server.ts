@@ -5,6 +5,7 @@
  */
 
 import { createServer, Server, IncomingMessage, ServerResponse } from "node:http";
+import { join } from "node:path";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
@@ -192,7 +193,7 @@ async function handlePi(body: Record<string, unknown>): Promise<{ status: number
   }
 
   const resourceLoader = new DefaultResourceLoader({
-    cwd: `${process.env.HOME}/.pi/agent`,
+    cwd: join(import.meta.dir, "..", ".pi"),
   });
 
   await resourceLoader.reload();

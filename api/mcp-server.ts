@@ -5,6 +5,7 @@
  * Tools: pi (create session + prompt), pi-reply (continue existing session)
  */
 
+import { join } from "node:path";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
@@ -86,7 +87,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       // Create new session
       const resourceLoader = new DefaultResourceLoader({
-        cwd: `${process.env.HOME}/.pi/agent`,
+        cwd: join(import.meta.dir, "..", ".pi"),
       });
 
       await resourceLoader.reload();

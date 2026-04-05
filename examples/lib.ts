@@ -2,14 +2,14 @@
  * Shared utilities for examples
  */
 
-import { homedir } from "node:os";
+import { join } from "node:path";
 import {
   createAgentSession,
   DefaultResourceLoader,
   SessionManager,
 } from "@mariozechner/pi-coding-agent";
 
-export const PI_AGENT_DIR = `${homedir()}/.pi/agent`;
+export const PI_AGENT_DIR = join(import.meta.dir, "..", ".pi");
 
 export async function createSession() {
   const resourceLoader = new DefaultResourceLoader({
