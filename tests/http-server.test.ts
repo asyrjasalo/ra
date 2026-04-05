@@ -1,16 +1,20 @@
-import { describe, test, expect, beforeEach, afterEach } from "bun:test";
-import { startServer, stopServer, getBaseUrl } from "../api/http-server";
+import { describe, test, expect, beforeAll, afterAll, beforeEach } from "bun:test";
+import { startServer, stopServer, getBaseUrl, resetState } from "../api/http-server";
 
 describe("HTTP Server", () => {
   let baseUrl: string;
 
-  beforeEach(async () => {
-    await startServer();
-    baseUrl = getBaseUrl();
+  beforeAll(async () => {
+    await startServer(3001);
+    baseUrl = getBaseUrl(3001);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await stopServer();
+  });
+
+  beforeEach(() => {
+    resetState();
   });
 
   test("GET /health returns status ok", async () => {

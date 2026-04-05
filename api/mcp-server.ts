@@ -184,7 +184,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("Pi Coding Agent MCP Server running on stdio");
+  console.log("Pi Coding Agent MCP Server running on stdio");
 }
 
 main().catch(console.error);
