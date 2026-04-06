@@ -2,16 +2,12 @@
  * Ra Coding Agent HTTP API Server
  *
  * REST API mirrors MCP tools: /ra (create + prompt), /ra-reply (continue)
+ * Uses Hono for high-performance HTTP handling
  */
 
 import { readFileSync } from "node:fs";
-import {
-	createServer,
-	type IncomingMessage,
-	type Server,
-	type ServerResponse,
-} from "node:http";
 import { join } from "node:path";
+import { serve } from "@hono/node-server";
 import {
 	AuthStorage,
 	createAgentSession,
@@ -19,6 +15,7 @@ import {
 	ModelRegistry,
 	SessionManager,
 } from "@mariozechner/pi-coding-agent";
+import { Hono } from "hono";
 
 const PORT = parseInt(process.env.PORT || "3000", 10);
 
@@ -39,24 +36,82 @@ export function resetState() {
 	_activeSessionId = null;
 }
 
+import type { Server } from "node:http";
+
 let server: Server | null = null;
 
 export async function startServer(port = PORT): Promise<Server> {
+	const app = new Hono();
+
+	// Middleware for JSON body parsing
+	app.use("*", async (c, next) => {
+		if (c.req.method === "POST" || c.req.method === "PUT") {
+			try {
+				const body = await c.req.json();
+				c.set("body", body);
+			} catch {
+				c.set("body", {});
+			}
+		}
+		await next();
+	});
+
+	// Route: POST /ra - Create new session + send first prompt
+	app.post("/ra", async (c) => {
+		const body = c.get("body") as Record<string, unknown>;
+		const result = await handlePi(body);
+		return c.json(result.body, result.status);
+	});
+
+	// Route: POST /ra-reply - Send prompt to existing session
+	app.post("/ra-reply", async (c) => {
+		const body = c.get("body") as Record<string, unknown>;
+		const result = await handlePiReply(body);
+		return c.json(result.body, result.status);
+	});
+
+	// Route: GET /openapi.yaml - Return OpenAPI spec as YAML
+	app.get("/openapi.yaml", (c) => {
+		const spec = readFileSync(
+			join(import.meta.dir, "..", "static", "openapi.yaml"),
+			"utf-8",
+		);
+		return c.body(spec, 200, { "Content-Type": "application/x-yaml" });
+	});
+
+	// Route: GET /openapi.json - Return OpenAPI spec as JSON
+	app.get("/openapi.json", (c) => {
+		const spec = readFileSync(
+			join(import.meta.dir, "..", "static", "openapi.yaml"),
+			"utf-8",
+		);
+		const json = yamlToJson(spec);
+		return c.body(json, 200, { "Content-Type": "application/json" });
+	});
+
+	// Route: GET /health - Health check
+	app.get("/health", (c) => {
+		return c.json({ status: "ok", activeSessions: sessions.size });
+	});
+
+	// Custom 404 handler - return JSON for unmatched routes
+	app.notFound((c) => {
+		return c.json({ error: "Not found" }, 404);
+	});
+
 	return new Promise((resolve, reject) => {
-		server = createServer(handleRequest);
-		server.on("error", reject);
-		server.listen(port, () => {
-			resolve(server!);
+		server = serve({
+			fetch: app.fetch,
+			port,
 		});
+		server.on("error", reject);
+		server.on("listening", () => resolve(server!));
 	});
 }
 
 export function stopServer(): Promise<void> {
 	return new Promise((resolve) => {
 		if (server) {
-			server.on("connection", (socket) => {
-				socket.destroy();
-			});
 			server.close(() => {
 				server = null;
 				resolve();
@@ -71,95 +126,8 @@ export function getBaseUrl(port = PORT): string {
 	return `http://localhost:${port}`;
 }
 
-async function handleRequest(
-	req: IncomingMessage,
-	res: ServerResponse,
-): Promise<void> {
-	const path = req.url?.split("?")[0] || "/";
-	const method = req.method || "GET";
-
-	try {
-		let body: Record<string, unknown> = {};
-
-		if (method === "POST" || method === "PUT") {
-			const chunks: Buffer[] = [];
-			for await (const chunk of req) {
-				chunks.push(Buffer.from(chunk));
-			}
-			if (chunks.length > 0) {
-				try {
-					body = JSON.parse(Buffer.concat(chunks).toString());
-				} catch {}
-			}
-		}
-
-		// Route: POST /ra - Create new session + send first prompt
-		if (path === "/ra" && method === "POST") {
-			const result = await handlePi(body);
-			sendResponse(res, result.status, result.body);
-			return;
-		}
-
-		// Route: POST /ra-reply - Send prompt to existing session
-		if (path === "/ra-reply" && method === "POST") {
-			const result = await handlePiReply(body);
-			sendResponse(res, result.status, result.body);
-			return;
-		}
-
-		// Route: GET /openapi.yaml - Return OpenAPI spec as YAML
-		if (path === "/openapi.yaml" && method === "GET") {
-			const spec = readFileSync(
-				join(import.meta.dir, "..", "static", "openapi.yaml"),
-				"utf-8",
-			);
-			res.statusCode = 200;
-			res.setHeader("Content-Type", "application/x-yaml");
-			res.end(spec);
-			return;
-		}
-
-		// Route: GET /openapi.json - Return OpenAPI spec as JSON
-		if (path === "/openapi.json" && method === "GET") {
-			const spec = readFileSync(
-				join(import.meta.dir, "..", "static", "openapi.yaml"),
-				"utf-8",
-			);
-			const json = yamlToJson(spec);
-			res.statusCode = 200;
-			res.setHeader("Content-Type", "application/json");
-			res.end(json);
-			return;
-		}
-
-		// Route: GET /health - Health check
-		if (path === "/health" && method === "GET") {
-			sendResponse(res, 200, { status: "ok" });
-			return;
-		}
-
-		sendResponse(res, 404, { error: "Not found" });
-	} catch (err) {
-		if (process.env.NODE_ENV !== "test") {
-			console.error("Request error:", err);
-		}
-		sendResponse(res, 500, { error: "Internal server error" });
-	}
-}
-
-function sendResponse(
-	res: ServerResponse,
-	status: number,
-	body: unknown,
-): void {
-	res.statusCode = status;
-	res.setHeader("Content-Type", "application/json");
-	res.end(JSON.stringify(body, null, 2));
-}
-
 // Simple YAML to JSON converter for the OpenAPI spec
 function yamlToJson(yaml: string): string {
-	// Basic YAML parsing - handles the structure of our OpenAPI spec
 	const lines = yaml.split("\n");
 	const result: Record<string, unknown> = {};
 	let current: Record<string, unknown> = result;
