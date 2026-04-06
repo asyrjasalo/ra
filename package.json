@@ -1,46 +1,52 @@
 {
-  "name": "ra",
-  "version": "1.0.0",
-  "type": "module",
-  "description": "TypeScript project demonstrating pi-coding-agent SDK usage",
-  "bin": {
-    "ra": "./src/cli.ts"
-  },
-  "scripts": {
-    "dev": "bun run src/cli.ts",
-    "start": "bun run src/cli.ts serve",
-    "start:http": "bun run src/http-server.ts",
-    "start:mcp": "bun run src/mcp-server.ts",
-    "test": "bun test"
-  },
-  "dependencies": {
-    "@danchamorro/pi-agent-modes": "latest",
-    "@danchamorro/pi-prompt-enhancer": "latest",
-    "@mariozechner/pi-ai": "0.65.0",
-    "@mariozechner/pi-coding-agent": "^0.65.0",
-    "@mariozechner/pi-tui": "^0.65.0",
-    "@modelcontextprotocol/sdk": "^1.29.0",
-    "@ogulcancelik/pi-tmux": "latest",
-    "@sinclair/typebox": "^0.34.49",
-    "pi-ask-user": "latest",
-    "pi-context": "latest",
-    "pi-extension-manager": "latest",
-    "pi-image-tools": "latest",
-    "pi-interactive-shell": "latest",
-    "pi-interview": "latest",
-    "pi-markdown-preview": "latest",
-    "pi-mcp-adapter": "latest",
-    "pi-powerline-footer": "latest",
-    "pi-rewind": "latest",
-    "pi-rtk-optimizer": "latest",
-    "pi-session-switch": "latest",
-    "pi-tool-display": "latest",
-    "pi-token-burden": "latest",
-    "pi-web-access": "latest"
-  },
-  "trustedDependencies": [
-    "koffi",
-    "pi-interactive-shell",
-    "protobufjs"
-  ]
+	"name": "ra",
+	"version": "1.0.0",
+	"type": "module",
+	"description": "TypeScript project demonstrating pi-coding-agent SDK usage",
+	"bin": {
+		"ra": "./src/cli.ts"
+	},
+	"scripts": {
+		"dev": "bun run src/cli.ts",
+		"start": "bun run src/cli.ts serve",
+		"start:http": "bun run src/http-server.ts",
+		"start:mcp": "bun run src/mcp-server.ts",
+		"test": "bun test",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"format": "biome format --write ."
+	},
+	"dependencies": {
+		"@danchamorro/pi-agent-modes": "latest",
+		"@danchamorro/pi-prompt-enhancer": "latest",
+		"@mariozechner/pi-ai": "0.65.0",
+		"@mariozechner/pi-coding-agent": "^0.65.0",
+		"@mariozechner/pi-tui": "^0.65.0",
+		"@modelcontextprotocol/sdk": "^1.29.0",
+		"@ogulcancelik/pi-tmux": "latest",
+		"@sinclair/typebox": "^0.34.49",
+		"pi-ask-user": "latest",
+		"pi-context": "latest",
+		"pi-extension-manager": "latest",
+		"pi-image-tools": "latest",
+		"pi-interactive-shell": "latest",
+		"pi-interview": "latest",
+		"pi-markdown-preview": "latest",
+		"pi-mcp-adapter": "latest",
+		"pi-powerline-footer": "latest",
+		"pi-rewind": "latest",
+		"pi-rtk-optimizer": "latest",
+		"pi-session-switch": "latest",
+		"pi-tool-display": "latest",
+		"pi-token-burden": "latest",
+		"pi-web-access": "latest"
+	},
+	"trustedDependencies": [
+		"koffi",
+		"pi-interactive-shell",
+		"protobufjs"
+	],
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.10"
+	}
 }
