@@ -1,0 +1,8 @@
+{
+  "globs": ["**/*.md"],
+  "ignores": ["node_modules/**", ".pi/**"],
+  "config": {
+    "recommended": true,
+    "MD013": false
+  }
+}

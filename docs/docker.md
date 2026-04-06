@@ -4,7 +4,7 @@ Run the Ra HTTP API server in a container.
 
 ## Prerequisites
 
-- [Docker](https://docs.docker.com/get-docker/)
+- Docker
 - `MINIMAX_API_KEY` environment variable set
 
 ## Quick Start
@@ -38,7 +38,7 @@ curl http://localhost:3000/health
 ## Configuration
 
 | Variable | Description | Required |
-|----------|-------------|----------|
+| -------- | ----------- | -------- |
 | `MINIMAX_API_KEY` | API key for the AI provider | Yes |
 | `PORT` | Server port (default: 3000) | No |
 

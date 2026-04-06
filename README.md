@@ -72,6 +72,7 @@ Configure in your MCP client (e.g., Claude Desktop, Cursor):
 - [Docker](docs/docker.md) - Run in Docker
 
 ---
+
 ## Examples
 
 ```bash
@@ -86,7 +87,7 @@ bun run examples/sdk/08-web-search.ts
 ```
 
 | File | Description |
-|------|-------------|
+| ---- | ----------- |
 | `01-minimal.ts` | Basic session with user settings from `~/.pi/agent` |
 | `02-multi-turn.ts` | Multi-turn conversation with context preservation |
 | `03-read-only.ts` | Safe mode with only read tools |

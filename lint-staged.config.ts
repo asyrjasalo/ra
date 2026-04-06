@@ -17,6 +17,7 @@ const config = {
   '*.{js,ts,json,md,yaml,yml,toml,css,html}': (files: readonly string[]) => {
     return `secretlint ${files.join(' ')}`;
   },
+  '*.md': 'markdownlint-cli2 fix',
 };
 
 export default config;

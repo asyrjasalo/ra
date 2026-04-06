@@ -18,7 +18,7 @@ curl -X POST http://localhost:3000/ra \
 
 ## Base URL
 
-```
+```bash
 http://localhost:3000
 ```
 
@@ -39,7 +39,7 @@ curl -X POST http://localhost:3000/ra \
 ```
 
 | Field | Type | Required | Description |
-|-------|------|----------|-------------|
+| ----- | ---- | -------- | ----------- |
 | `prompt` | string | Yes | The prompt to send |
 | `provider` | string | No | Model provider (e.g., "anthropic") |
 | `model` | string | No | Model name (e.g., "claude-3-5-sonnet-20241022") |
@@ -55,12 +55,12 @@ curl -X POST http://localhost:3000/ra \
 ```
 
 | Field | Type | Description |
-|-------|------|-------------|
+| ----- | ---- | ----------- |
 | `id` | string | Session ID for subsequent requests |
 | `response` | string | The agent's text response |
 
 | Status | Description |
-|--------|-------------|
+| ------ | ----------- |
 | `200` | Success |
 | `400` | Missing `prompt` or invalid parameters |
 | `500` | Internal error |
@@ -80,7 +80,7 @@ curl -X POST http://localhost:3000/ra-reply \
 ```
 
 | Field | Type | Required | Description |
-|-------|------|----------|-------------|
+| ----- | ---- | -------- | ----------- |
 | `id` | string | Yes | Session ID to continue |
 | `prompt` | string | Yes | The continuation prompt |
 
@@ -94,7 +94,7 @@ curl -X POST http://localhost:3000/ra-reply \
 ```
 
 | Status | Description |
-|--------|-------------|
+| ------ | ----------- |
 | `200` | Success |
 | `400` | Missing `id` or `prompt` |
 | `404` | Session not found |
@@ -150,7 +150,7 @@ curl http://localhost:3000/health
 ```
 
 | Status | Meaning |
-|--------|---------|
+| ------ | ------- |
 | `400` | Bad request (missing required fields) |
 | `404` | Resource not found |
 | `500` | Internal server error |
@@ -160,7 +160,7 @@ curl http://localhost:3000/health
 ## Environment Variables
 
 | Variable | Default | Description |
-|----------|---------|-------------|
+| -------- | ------ | ----------- |
 | `PORT` | `3000` | HTTP server port |
 | `HOME` | System | User home (for `~/.pi/agent` config) |
 | `PI_AGENT_DIR` | `~/.pi/agent` | Override agent configuration directory |

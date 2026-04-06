@@ -44,7 +44,7 @@ Create a new session and send the first prompt. Returns the session ID and the a
 ```
 
 | Field | Type | Required | Description |
-|-------|------|----------|-------------|
+| ----- | ---- | -------- | ----------- |
 | `prompt` | string | Yes | The prompt to send to the agent |
 | `provider` | string | No | Model provider (e.g., "anthropic") |
 | `model` | string | No | Model name (e.g., "claude-3-5-sonnet-20241022") |
@@ -77,7 +77,7 @@ Send a continuation prompt to an existing session.
 ```
 
 | Field | Type | Required | Description |
-|-------|------|----------|-------------|
+| ----- | ---- | -------- | ----------- |
 | `id` | string | Yes | Session ID to continue |
 | `prompt` | string | Yes | The continuation prompt |
 
