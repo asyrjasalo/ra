@@ -13,7 +13,7 @@ Add to your MCP client config (e.g., Claude Desktop, Cursor, etc.):
   "pi-coding-agent": {
     "command": "bun",
     "args": ["run", "api/mcp-server.ts"],
-    "cwd": "/path/to/pi-sdk-demo"
+    "cwd": "/path/to/ra"
   }
 }
 ```

@@ -1,4 +1,4 @@
-# Pi SDK Demo
+# Ra
 
 Demonstrates programmatic usage of `@mariozechner/pi-coding-agent`.
 
@@ -35,7 +35,7 @@ Configure in your MCP client (e.g., Claude Desktop, Cursor):
   "pi-coding-agent": {
     "command": "bun",
     "args": ["run", "api/mcp-server.ts"],
-    "cwd": "/path/to/pi-sdk-demo"
+    "cwd": "/path/to/ra"
   }
 }
 ```

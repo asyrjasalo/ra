@@ -1,7 +1,7 @@
 /**
- * Pi Coding Agent HTTP API Server
+ * Ra Coding Agent HTTP API Server
  * 
- * REST API mirrors MCP tools: /pi (create + prompt), /pi-reply (continue)
+ * REST API mirrors MCP tools: /ra (create + prompt), /ra-reply (continue)
  */
 
 import { createServer, Server, IncomingMessage, ServerResponse } from "node:http";
@@ -12,6 +12,9 @@ import {
   createAgentSession,
   DefaultResourceLoader,
   SessionManager,
+  AuthStorage,
+  ModelRegistry,
+  getModel,
 } from "@mariozechner/pi-coding-agent";
 
 const PORT = parseInt(process.env.PORT || "3000");
@@ -82,15 +85,15 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
       }
     }
 
-    // Route: POST /pi - Create new session + send first prompt
-    if (path === "/pi" && method === "POST") {
+    // Route: POST /ra - Create new session + send first prompt
+    if (path === "/ra" && method === "POST") {
       const result = await handlePi(body);
       sendResponse(res, result.status, result.body);
       return;
     }
 
-    // Route: POST /pi-reply - Send prompt to existing session
-    if (path === "/pi-reply" && method === "POST") {
+    // Route: POST /ra-reply - Send prompt to existing session
+    if (path === "/ra-reply" && method === "POST") {
       const result = await handlePiReply(body);
       sendResponse(res, result.status, result.body);
       return;
@@ -187,9 +190,21 @@ function yamlToJson(yaml: string): string {
 async function handlePi(body: Record<string, unknown>): Promise<{ status: number; body: unknown }> {
   const prompt = body.prompt as string;
   const timeout = (body.timeout as number) || 120000;
+  const provider = body.provider as string | undefined;
+  const modelName = body.model as string | undefined;
+  const thinkingLevel = body.thinkingLevel as string | undefined;
 
   if (!prompt) {
     return { status: 400, body: { error: "Missing 'prompt' in request body" } };
+  }
+
+  // Validate thinking level
+  const validThinkingLevels = ["off", "low", "medium", "high"];
+  if (thinkingLevel && !validThinkingLevels.includes(thinkingLevel)) {
+    return {
+      status: 400,
+      body: { error: `Invalid 'thinkingLevel'. Must be one of: ${validThinkingLevels.join(", ")}` },
+    };
   }
 
   const resourceLoader = new DefaultResourceLoader({
@@ -198,17 +213,36 @@ async function handlePi(body: Record<string, unknown>): Promise<{ status: number
 
   await resourceLoader.reload();
 
-  const id = crypto.randomUUID();
-  const { session } = await createAgentSession({
+  const authStorage = AuthStorage.create();
+  const modelRegistry = ModelRegistry.create(authStorage);
+
+  const sessionOptions: Record<string, unknown> = {
     resourceLoader,
     sessionManager: SessionManager.inMemory(),
-  });
+    authStorage,
+    modelRegistry,
+  };
+
+  // Set model if provider and model are provided
+  if (provider && modelName) {
+    sessionOptions.model = getModel(provider, modelName);
+  }
+
+  // Set thinking level if provided
+  if (thinkingLevel) {
+    sessionOptions.thinkingLevel = thinkingLevel;
+  }
+
+  const id = crypto.randomUUID();
+  const { session } = await createAgentSession(sessionOptions as Parameters<typeof createAgentSession>[0]);
 
   sessions.set(id, session);
   sessionResources.set(id, resourceLoader);
   activeSessionId = id;
 
-  console.log(`[${id}] Session created, prompt: ${prompt.substring(0, 80)}...`);
+  const modelInfo = provider && modelName ? ` (${provider}/${modelName})` : "";
+  const thinkingInfo = thinkingLevel ? ` thinking=${thinkingLevel}` : "";
+  console.log(`[${id}] Session created${modelInfo}${thinkingInfo}, prompt: ${prompt.substring(0, 80)}...`);
 
   const events: unknown[] = [];
   const responseParts: string[] = [];
@@ -293,6 +327,6 @@ const isMain = process.argv[1]?.endsWith("api/http-server.ts");
 if (isMain) {
   startServer().then(() => {
     console.log(`Pi Coding Agent API running at http://localhost:${PORT}`);
-    console.log("Endpoints: POST /pi, POST /pi-reply, GET /openapi.yaml, GET /openapi.json, GET /health");
+    console.log("Endpoints: POST /ra, POST /ra-reply, GET /openapi.yaml, GET /openapi.json, GET /health");
   });
 }

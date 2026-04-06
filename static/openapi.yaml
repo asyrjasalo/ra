@@ -1,26 +1,26 @@
 openapi: 3.1.0
 info:
-  title: Pi Coding Agent API
+  title: Ra Coding Agent API
   description: |
-    REST API for pi-coding-agent session management.
+    REST API for ra-coding-agent session management.
 
     Provides two actions: create a session with an initial prompt, or continue the conversation using a session ID.
   version: 1.0.0
   contact:
-    name: pi-coding-agent
+    name: ra-coding-agent
 
 servers:
   - url: http://localhost:3000
     description: Local development server
 
 paths:
-  /pi:
+  /ra:
     post:
       operationId: createSessionAndPrompt
       summary: Create session and send first prompt
       description: |
         Creates a new AI coding agent session and sends the first prompt.
-        Returns the session ID for use in subsequent /pi-reply calls.
+        Returns the session ID for use in subsequent /ra-reply calls.
       tags:
         - Sessions
       requestBody:
@@ -28,7 +28,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PiRequest"
+              $ref: "#/components/schemas/RaRequest"
             example:
               prompt: "What files are in my project?"
               timeout: 120000
@@ -38,7 +38,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PiResponse"
+                $ref: "#/components/schemas/RaResponse"
               example:
                 id: "550e8400-e29b-41d4-a716-446655440000"
                 response: "What files are in the current directory?
@@ -62,13 +62,13 @@ Based on my analysis, the current directory contains:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /pi-reply:
+  /ra-reply:
     post:
       operationId: continueSession
       summary: Continue an existing session
       description: |
         Send a continuation prompt to an existing session.
-        Requires the session ID from a previous /pi call.
+        Requires the session ID from a previous /ra call.
       tags:
         - Sessions
       requestBody:
@@ -76,7 +76,7 @@ Based on my analysis, the current directory contains:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PiReplyRequest"
+              $ref: "#/components/schemas/RaReplyRequest"
             example:
               id: "550e8400-e29b-41d4-a716-446655440000"
               prompt: "Continue with the next step"
@@ -87,7 +87,7 @@ Based on my analysis, the current directory contains:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PiResponse"
+                $ref: "#/components/schemas/RaResponse"
         "400":
           description: Missing id or prompt
           content:
@@ -157,7 +157,7 @@ Based on my analysis, the current directory contains:
 
 components:
   schemas:
-    PiRequest:
+    RaRequest:
       type: object
       required:
         - prompt
@@ -170,7 +170,7 @@ components:
           description: Timeout in ms (default: 120000)
           default: 120000
 
-    PiReplyRequest:
+    RaReplyRequest:
       type: object
       required:
         - id
@@ -188,7 +188,7 @@ components:
           description: Timeout in ms (default: 120000)
           default: 120000
 
-    PiResponse:
+    RaResponse:
       type: object
       properties:
         id:

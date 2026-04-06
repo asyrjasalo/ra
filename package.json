@@ -1,11 +1,16 @@
 {
-  "name": "pi-sdk-demo",
+  "name": "ra",
   "version": "1.0.0",
   "type": "module",
   "description": "TypeScript project demonstrating pi-coding-agent SDK usage",
+  "bin": {
+    "ra": "./src/cli.ts"
+  },
   "scripts": {
-    "start": "bun run api/http-server.ts",
-    "start:mcp": "bun run api/mcp-server.ts",
+    "dev": "bun run src/cli.ts",
+    "start": "bun run src/cli.ts serve",
+    "start:http": "bun run src/http-server.ts",
+    "start:mcp": "bun run src/mcp-server.ts",
     "test": "bun test"
   },
   "dependencies": {

@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from "bun:test";
-import { startServer, stopServer, getBaseUrl, resetState } from "../api/http-server";
+import { startServer, stopServer, getBaseUrl, resetState } from "../src/http-server";
 
 describe("HTTP Server", () => {
   let baseUrl: string;
@@ -28,8 +28,8 @@ describe("HTTP Server", () => {
   });
 
   test("GET /health with active sessions shows correct count", async () => {
-    // Create a session via POST /pi
-    await fetch(`${baseUrl}/pi`, {
+    // Create a session via POST /ra
+    await fetch(`${baseUrl}/ra`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt: "test", timeout: 1000 }),
@@ -55,7 +55,7 @@ describe("HTTP Server", () => {
 
     const text = await res.text();
     expect(text).toContain("openapi:");
-    expect(text).toContain("/pi");
+    expect(text).toContain("/ra");
   });
 
   test("GET /openapi.json returns valid JSON", async () => {
@@ -68,8 +68,8 @@ describe("HTTP Server", () => {
     expect(body).toHaveProperty("paths");
   });
 
-  test("POST /pi without prompt returns 400", async () => {
-    const res = await fetch(`${baseUrl}/pi`, {
+  test("POST /ra without prompt returns 400", async () => {
+    const res = await fetch(`${baseUrl}/ra`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({}),
@@ -80,8 +80,8 @@ describe("HTTP Server", () => {
     expect(body).toHaveProperty("error");
   });
 
-  test("POST /pi-reply without session returns 404", async () => {
-    const res = await fetch(`${baseUrl}/pi-reply`, {
+  test("POST /ra-reply without session returns 404", async () => {
+    const res = await fetch(`${baseUrl}/ra-reply`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: "nonexistent", prompt: "test" }),
