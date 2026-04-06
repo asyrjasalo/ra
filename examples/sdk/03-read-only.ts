@@ -6,26 +6,26 @@
  * Run: bun run examples/03-read-only.ts
  */
 
-import { createSession } from "./lib.js";
+import { createSession } from './lib.js';
 
 async function main() {
-	console.log("\n=== Read-Only Example ===\n");
+  console.log('\n=== Read-Only Example ===\n');
 
-	const { session } = await createSession();
+  const { session } = await createSession();
 
-	session.subscribe((event) => {
-		if (
-			event.type === "message_update" &&
-			event.assistantMessageEvent.type === "text_delta"
-		) {
-			process.stdout.write(event.assistantMessageEvent.delta);
-		}
-	});
+  session.subscribe((event) => {
+    if (
+      event.type === 'message_update' &&
+      event.assistantMessageEvent.type === 'text_delta'
+    ) {
+      process.stdout.write(event.assistantMessageEvent.delta);
+    }
+  });
 
-	await session.prompt("Search for 'TODO' in this project");
-	console.log("\n");
+  await session.prompt("Search for 'TODO' in this project");
+  console.log('\n');
 
-	session.dispose();
+  session.dispose();
 }
 
 main().catch(console.error);

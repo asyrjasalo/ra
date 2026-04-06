@@ -1,106 +1,106 @@
 import {
-	afterAll,
-	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	test,
-} from "bun:test";
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from 'bun:test';
 import {
-	getBaseUrl,
-	resetState,
-	startServer,
-	stopServer,
-} from "../src/http-server";
+  getBaseUrl,
+  resetState,
+  startServer,
+  stopServer,
+} from '../src/http-server';
 
-describe("HTTP Server", () => {
-	let baseUrl: string;
+describe('HTTP Server', () => {
+  let baseUrl: string;
 
-	beforeAll(async () => {
-		await startServer(3001);
-		baseUrl = getBaseUrl(3001);
-	});
+  beforeAll(async () => {
+    await startServer(3001);
+    baseUrl = getBaseUrl(3001);
+  });
 
-	afterAll(async () => {
-		await stopServer();
-	});
+  afterAll(async () => {
+    await stopServer();
+  });
 
-	beforeEach(() => {
-		resetState();
-	});
+  beforeEach(() => {
+    resetState();
+  });
 
-	test("GET /health returns status ok", async () => {
-		const res = await fetch(`${baseUrl}/health`);
-		expect(res.status).toBe(200);
+  test('GET /health returns status ok', async () => {
+    const res = await fetch(`${baseUrl}/health`);
+    expect(res.status).toBe(200);
 
-		const body = await res.json();
-		expect(body).toHaveProperty("status", "ok");
-		expect(body).toHaveProperty("activeSessions");
-		expect(typeof body.activeSessions).toBe("number");
-	});
+    const body = await res.json();
+    expect(body).toHaveProperty('status', 'ok');
+    expect(body).toHaveProperty('activeSessions');
+    expect(typeof body.activeSessions).toBe('number');
+  });
 
-	test("GET /health with active sessions shows correct count", async () => {
-		// Create a session via POST /ra
-		await fetch(`${baseUrl}/ra`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ prompt: "test", timeout: 1000 }),
-		});
+  test('GET /health with active sessions shows correct count', async () => {
+    // Create a session via POST /ra
+    await fetch(`${baseUrl}/ra`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: 'test' }),
+    });
 
-		const healthRes = await fetch(`${baseUrl}/health`);
-		const healthBody = await healthRes.json();
-		expect(healthBody.activeSessions).toBeGreaterThanOrEqual(0);
-	});
+    const healthRes = await fetch(`${baseUrl}/health`);
+    const healthBody = await healthRes.json();
+    expect(healthBody.activeSessions).toBeGreaterThanOrEqual(0);
+  });
 
-	test("GET /nonexistent returns 404", async () => {
-		const res = await fetch(`${baseUrl}/nonexistent`);
-		expect(res.status).toBe(404);
+  test('GET /nonexistent returns 404', async () => {
+    const res = await fetch(`${baseUrl}/nonexistent`);
+    expect(res.status).toBe(404);
 
-		const body = await res.json();
-		expect(body).toHaveProperty("error", "Not found");
-	});
+    const body = await res.json();
+    expect(body).toHaveProperty('error', 'Not found');
+  });
 
-	test("GET /openapi.yaml returns valid YAML", async () => {
-		const res = await fetch(`${baseUrl}/openapi.yaml`);
-		expect(res.status).toBe(200);
-		expect(res.headers.get("Content-Type")).toContain("x-yaml");
+  test('GET /openapi.yaml returns valid YAML', async () => {
+    const res = await fetch(`${baseUrl}/openapi.yaml`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('Content-Type')).toContain('x-yaml');
 
-		const text = await res.text();
-		expect(text).toContain("openapi:");
-		expect(text).toContain("/ra");
-	});
+    const text = await res.text();
+    expect(text).toContain('openapi:');
+    expect(text).toContain('/ra');
+  });
 
-	test("GET /openapi.json returns valid JSON", async () => {
-		const res = await fetch(`${baseUrl}/openapi.json`);
-		expect(res.status).toBe(200);
-		expect(res.headers.get("Content-Type")).toContain("json");
+  test('GET /openapi.json returns valid JSON', async () => {
+    const res = await fetch(`${baseUrl}/openapi.json`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('Content-Type')).toContain('json');
 
-		const body = await res.json();
-		expect(body).toHaveProperty("openapi");
-		expect(body).toHaveProperty("paths");
-	});
+    const body = await res.json();
+    expect(body).toHaveProperty('openapi');
+    expect(body).toHaveProperty('paths');
+  });
 
-	test("POST /ra without prompt returns 400", async () => {
-		const res = await fetch(`${baseUrl}/ra`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({}),
-		});
+  test('POST /ra without prompt returns 400', async () => {
+    const res = await fetch(`${baseUrl}/ra`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
 
-		expect(res.status).toBe(400);
-		const body = await res.json();
-		expect(body).toHaveProperty("error");
-	});
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body).toHaveProperty('error');
+  });
 
-	test("POST /ra-reply without session returns 404", async () => {
-		const res = await fetch(`${baseUrl}/ra-reply`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ id: "nonexistent", prompt: "test" }),
-		});
+  test('POST /ra-reply without session returns 404', async () => {
+    const res = await fetch(`${baseUrl}/ra-reply`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 'nonexistent', prompt: 'test' }),
+    });
 
-		expect(res.status).toBe(404);
-		const body = await res.json();
-		expect(body).toHaveProperty("error", "Session not found");
-	});
+    expect(res.status).toBe(404);
+    const body = await res.json();
+    expect(body).toHaveProperty('error', 'Session not found');
+  });
 });

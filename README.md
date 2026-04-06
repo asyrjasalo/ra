@@ -51,7 +51,6 @@ Configure in your MCP client (e.g., Claude Desktop, Cursor):
 - **Session management**: Create sessions, continue conversations
 - **Model selection**: Specify provider/model via API parameters
 - **Thinking levels**: Control thinking (off, low, medium, high)
-- **Timeout support**: Configurable request timeouts
 - **MCP integration**: Works with any MCP-compatible client
 
 ---

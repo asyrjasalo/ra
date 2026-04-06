@@ -35,13 +35,12 @@ Create a new session and send the first prompt. Returns the session ID and the a
 ```bash
 curl -X POST http://localhost:3000/ra \
   -H "Content-Type: application/json" \
-  -d '{"prompt": "What files are in my project?", "timeout": 120000}'
+  -d '{"prompt": "What files are in my project?"}'
 ```
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `prompt` | string | Yes | The prompt to send |
-| `timeout` | number | No | Timeout in ms (default: 120000) |
 | `provider` | string | No | Model provider (e.g., "anthropic") |
 | `model` | string | No | Model name (e.g., "claude-3-5-sonnet-20241022") |
 | `thinkingLevel` | string | No | Thinking level: "off", "low", "medium", "high" |
@@ -51,8 +50,7 @@ curl -X POST http://localhost:3000/ra \
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
-  "response": "Based on my analysis, the current directory contains:\n\n- api/\n- examples/\n- static/\n- tests/",
-  "timedOut": false
+  "response": "Based on my analysis, the current directory contains:\n\n- api/\n- examples/\n- static/\n- tests/"
 }
 ```
 
@@ -60,13 +58,11 @@ curl -X POST http://localhost:3000/ra \
 |-------|------|-------------|
 | `id` | string | Session ID for subsequent requests |
 | `response` | string | The agent's text response |
-| `timedOut` | boolean | Whether the request timed out |
 
 | Status | Description |
 |--------|-------------|
 | `200` | Success |
 | `400` | Missing `prompt` or invalid parameters |
-| `408` | Request timed out (partial response returned) |
 | `500` | Internal error |
 
 ---
@@ -87,15 +83,13 @@ curl -X POST http://localhost:3000/ra-reply \
 |-------|------|----------|-------------|
 | `id` | string | Yes | Session ID to continue |
 | `prompt` | string | Yes | The continuation prompt |
-| `timeout` | number | No | Timeout in ms (default: 120000) |
 
 **Response:**
 
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
-  "response": "I'll continue with the next step...",
-  "timedOut": false
+  "response": "I'll continue with the next step..."
 }
 ```
 
@@ -104,7 +98,6 @@ curl -X POST http://localhost:3000/ra-reply \
 | `200` | Success |
 | `400` | Missing `id` or `prompt` |
 | `404` | Session not found |
-| `408` | Request timed out |
 | `500` | Internal error |
 
 ---
@@ -160,7 +153,6 @@ curl http://localhost:3000/health
 |--------|---------|
 | `400` | Bad request (missing required fields) |
 | `404` | Resource not found |
-| `408` | Request timed out |
 | `500` | Internal server error |
 
 ---

@@ -31,7 +31,6 @@ paths:
               $ref: "#/components/schemas/RaRequest"
             example:
               prompt: "What files are in my project?"
-              timeout: 120000
       responses:
         "200":
           description: Success
@@ -80,7 +79,6 @@ Based on my analysis, the current directory contains:
             example:
               id: "550e8400-e29b-41d4-a716-446655440000"
               prompt: "Continue with the next step"
-              timeout: 120000
       responses:
         "200":
           description: Success
@@ -165,10 +163,6 @@ components:
         prompt:
           type: string
           description: The prompt to send to the agent
-        timeout:
-          type: number
-          description: Timeout in ms (default: 120000)
-          default: 120000
 
     RaReplyRequest:
       type: object
@@ -183,10 +177,6 @@ components:
         prompt:
           type: string
           description: The continuation prompt to send
-        timeout:
-          type: number
-          description: Timeout in ms (default: 120000)
-          default: 120000
 
     RaResponse:
       type: object

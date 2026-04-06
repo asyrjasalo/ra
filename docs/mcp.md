@@ -37,7 +37,6 @@ Create a new session and send the first prompt. Returns the session ID and the a
 ```json
 {
   "prompt": "List all TypeScript files in this project",
-  "timeout": 120000,
   "provider": "anthropic",
   "model": "claude-3-5-sonnet-20241022",
   "thinkingLevel": "high"
@@ -47,7 +46,6 @@ Create a new session and send the first prompt. Returns the session ID and the a
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `prompt` | string | Yes | The prompt to send to the agent |
-| `timeout` | number | No | Timeout in ms (default: 120000) |
 | `provider` | string | No | Model provider (e.g., "anthropic") |
 | `model` | string | No | Model name (e.g., "claude-3-5-sonnet-20241022") |
 | `thinkingLevel` | string | No | Thinking level: "off", "low", "medium", "high" |
@@ -58,7 +56,7 @@ Create a new session and send the first prompt. Returns the session ID and the a
 {
   "content": [{
     "type": "text",
-    "text": "{\"id\":\"550e8400-e29b-41d4-a716-446655440000\",\"response\":\"Based on my analysis...\",\"timedOut\":false}"
+    "text": "{\"id\":\"550e8400-e29b-41d4-a716-446655440000\",\"response\":\"Based on my analysis...\"}"
   }]
 }
 ```
@@ -74,8 +72,7 @@ Send a continuation prompt to an existing session.
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
-  "prompt": "Now refactor the core module",
-  "timeout": 120000
+  "prompt": "Now refactor the core module"
 }
 ```
 
@@ -83,7 +80,6 @@ Send a continuation prompt to an existing session.
 |-------|------|----------|-------------|
 | `id` | string | Yes | Session ID to continue |
 | `prompt` | string | Yes | The continuation prompt |
-| `timeout` | number | No | Timeout in ms (default: 120000) |
 
 **Response:**
 
@@ -91,7 +87,7 @@ Send a continuation prompt to an existing session.
 {
   "content": [{
     "type": "text",
-    "text": "{\"id\":\"550e8400-...\",\"response\":\"I'll refactor the core module...\",\"timedOut\":false}"
+    "text": "{\"id\":\"550e8400-...\",\"response\":\"I'll refactor the core module...\"}"
   }]
 }
 ```
@@ -105,8 +101,7 @@ The response body contains a JSON string with:
 ```json
 {
   "id": "session-uuid",
-  "response": "The agent's text response to the prompt",
-  "timedOut": false
+  "response": "The agent's text response to the prompt"
 }
 ```
 

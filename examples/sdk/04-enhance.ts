@@ -6,51 +6,51 @@
  * Run: bun run examples/04-enhance.ts
  */
 
-import { createSession } from "./lib.js";
+import { createSession } from './lib.js';
 
 async function main() {
-	console.log("\n=== /enhance Command Example ===\n");
+  console.log('\n=== /enhance Command Example ===\n');
 
-	const { session } = await createSession();
+  const { session } = await createSession();
 
-	// Bind extensions to initialize the extension runner
-	await session.bindExtensions({});
+  // Bind extensions to initialize the extension runner
+  await session.bindExtensions({});
 
-	// Get the extension runner
-	const runner = (session as any)._extensionRunner;
-	if (!runner) {
-		console.error("No extension runner");
-		session.dispose();
-		return;
-	}
+  // Get the extension runner
+  const runner = session.extensionRunner;
+  if (!runner) {
+    console.error('No extension runner');
+    session.dispose();
+    return;
+  }
 
-	// Get the /enhance command
-	const enhanceCmd = runner.getCommand("enhance");
-	if (!enhanceCmd) {
-		console.error("/enhance command not found");
-		session.dispose();
-		return;
-	}
+  // Get the /enhance command
+  const enhanceCmd = runner.getCommand('enhance');
+  if (!enhanceCmd) {
+    console.error('/enhance command not found');
+    session.dispose();
+    return;
+  }
 
-	const prompt = "fix the login bug";
-	console.log(`Original: "${prompt}"`);
+  const prompt = 'fix the login bug';
+  console.log(`Original: "${prompt}"`);
 
-	// Execute the command
-	const ctx = runner.createCommandContext() as any;
-	ctx.hasUI = true; // Required by /enhance command
+  // Execute the command
+  const ctx = runner.createCommandContext();
+  ctx.hasUI = true; // Required by /enhance command
 
-	// Capture the enhanced result
-	let enhancedResult: string | undefined;
-	ctx.ui.setEditorText = (text: string) => {
-		enhancedResult = text;
-	};
+  // Capture the enhanced result
+  let enhancedResult: string | undefined;
+  ctx.ui.setEditorText = (text: string) => {
+    enhancedResult = text;
+  };
 
-	await enhanceCmd.handler(prompt, ctx);
+  await enhanceCmd.handler(prompt, ctx);
 
-	console.log(`Enhanced: "${enhancedResult}"`);
-	console.log("\n");
+  console.log(`Enhanced: "${enhancedResult}"`);
+  console.log('\n');
 
-	session.dispose();
+  session.dispose();
 }
 
 main().catch(console.error);
