@@ -14,7 +14,7 @@ const PI_AGENT_DIR = getAgentDir();
 
 function createProjectOnlySettingsManager(): SettingsManager {
   const projectSettingsPath = join(PI_PROJECT_DIR, '.pi', 'settings.json');
-  const sm = SettingsManager.inMemory({});
+  const sm = SettingsManager.inMemory({}); // empty global
 
   if (existsSync(projectSettingsPath)) {
     const projectSettings = JSON.parse(
@@ -22,6 +22,13 @@ function createProjectOnlySettingsManager(): SettingsManager {
     );
     if (projectSettings.packages) {
       sm.setProjectPackages(projectSettings.packages);
+    }
+    // Set default provider and model from project settings
+    if (projectSettings.defaultProvider) {
+      sm.setDefaultProvider(projectSettings.defaultProvider);
+    }
+    if (projectSettings.defaultModel) {
+      sm.setDefaultModel(projectSettings.defaultModel);
     }
   }
 
@@ -43,6 +50,7 @@ async function createSession() {
   const { session } = await createAgentSession({
     resourceLoader,
     sessionManager: SessionManager.inMemory(),
+    settingsManager,
   });
 
   return { session, extensionsResult };

@@ -18,7 +18,7 @@ export const PI_PROJECT_DIR = join(dirname(import.meta.filename), '..', '..');
 export const PI_AGENT_DIR = getAgentDir();
 
 /**
- * Create a SettingsManager that only loads packages from the project's
+ * Create a SettingsManager that loads packages and defaults from the project's
  * `.pi/settings.json`, ignoring globally installed extensions.
  */
 function createProjectOnlySettingsManager(): SettingsManager {
@@ -31,6 +31,13 @@ function createProjectOnlySettingsManager(): SettingsManager {
     );
     if (projectSettings.packages) {
       sm.setProjectPackages(projectSettings.packages);
+    }
+    // Set default provider and model from project settings
+    if (projectSettings.defaultProvider) {
+      sm.setDefaultProvider(projectSettings.defaultProvider);
+    }
+    if (projectSettings.defaultModel) {
+      sm.setDefaultModel(projectSettings.defaultModel);
     }
   }
 
@@ -54,6 +61,7 @@ export async function createSession() {
   const { session } = await createAgentSession({
     resourceLoader,
     sessionManager: SessionManager.inMemory(),
+    settingsManager,
   });
 
   return { session, extensionsResult, skillsResult };

@@ -5,6 +5,7 @@
  * Tools: pi (create session + prompt), pi-reply (continue existing session)
  */
 
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -12,6 +13,7 @@ import {
   createAgentSession,
   DefaultResourceLoader,
   SessionManager,
+  SettingsManager,
 } from '@mariozechner/pi-coding-agent';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
@@ -98,6 +100,24 @@ function getPiCwd(): string {
   return join(__dirname, '..', '.pi');
 }
 
+/**
+ * Load default provider/model from settings.json
+ */
+function createPiSettingsManager(): SettingsManager {
+  const settingsManager = SettingsManager.inMemory({});
+  const settingsPath = join(getPiCwd(), 'settings.json');
+  if (existsSync(settingsPath)) {
+    const settings = JSON.parse(readFileSync(settingsPath, 'utf8'));
+    if (settings.defaultProvider) {
+      settingsManager.setDefaultProvider(settings.defaultProvider);
+    }
+    if (settings.defaultModel) {
+      settingsManager.setDefaultModel(settings.defaultModel);
+    }
+  }
+  return settingsManager;
+}
+
 // Helper to execute a prompt and collect response
 async function executePrompt(
   session: AgentSession,
@@ -154,6 +174,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { session } = await createAgentSession({
         resourceLoader,
         sessionManager: SessionManager.inMemory(),
+        settingsManager: createPiSettingsManager(),
       });
 
       sessions.set(id, { session, resourceLoader });

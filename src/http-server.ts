@@ -5,7 +5,7 @@
  * Uses Hono for high-performance HTTP handling
  */
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import type { Server } from 'node:http';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,6 +19,7 @@ import {
   DefaultResourceLoader,
   ModelRegistry,
   SessionManager,
+  SettingsManager,
 } from '@mariozechner/pi-coding-agent';
 import { Hono } from 'hono';
 
@@ -197,14 +198,28 @@ async function handlePi(
   const authStorage = AuthStorage.create();
   const modelRegistry = ModelRegistry.create(authStorage);
 
+  // Load default provider/model from settings.json
+  const settingsManager = SettingsManager.inMemory({});
+  const settingsPath = getStaticPath('.pi', 'settings.json');
+  if (existsSync(settingsPath)) {
+    const settings = JSON.parse(readFileSync(settingsPath, 'utf8'));
+    if (settings.defaultProvider) {
+      settingsManager.setDefaultProvider(settings.defaultProvider);
+    }
+    if (settings.defaultModel) {
+      settingsManager.setDefaultModel(settings.defaultModel);
+    }
+  }
+
   const sessionOptions: CreateAgentSessionOptions = {
     resourceLoader,
     sessionManager: SessionManager.inMemory(),
     authStorage,
     modelRegistry,
+    settingsManager,
   };
 
-  // Set model if provider and model are provided
+  // Set model if provider and model are provided (overrides defaults)
   if (provider && modelName) {
     const model = modelRegistry.find(provider, modelName);
     if (!model) {

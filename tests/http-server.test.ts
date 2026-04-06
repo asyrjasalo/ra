@@ -103,4 +103,38 @@ describe('HTTP Server', () => {
     const body = await res.json();
     expect(body).toHaveProperty('error', 'Session not found');
   });
+
+  test('POST /ra uses default provider and model from settings.json', async () => {
+    // Create a session without specifying provider/model
+    // This should use the default provider/model from static/.pi/settings.json
+    const res = await fetch(`${baseUrl}/ra`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: 'What is 1+1?' }),
+    });
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body).toHaveProperty('id');
+    expect(body).toHaveProperty('response');
+    expect(typeof body.response).toBe('string');
+  }, 120000);
+
+  test('POST /ra with explicit provider/model overrides defaults', async () => {
+    // Even when defaults are set, explicit provider/model should take precedence
+    const res = await fetch(`${baseUrl}/ra`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: 'What is 3+3?',
+        provider: 'minimax',
+        model: 'MiniMax-M2.7',
+      }),
+    });
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body).toHaveProperty('id');
+    expect(body).toHaveProperty('response');
+  }, 120000);
 });
