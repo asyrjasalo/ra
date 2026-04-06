@@ -76,7 +76,7 @@ describe("MCP Server", () => {
 
   async function startMcpServer(): Promise<void> {
     proc = spawn({
-      cmd: ["bun", "run", resolve(import.meta.dir, "../api/mcp-server.ts")],
+      cmd: ["bun", "run", resolve(import.meta.dir, "../src/mcp-server.ts")],
       stdout: "pipe",
       stdin: "pipe",
       stderr: "pipe",

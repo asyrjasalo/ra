@@ -14,7 +14,6 @@ import {
   SessionManager,
   AuthStorage,
   ModelRegistry,
-  getModel,
 } from "@mariozechner/pi-coding-agent";
 
 const PORT = parseInt(process.env.PORT || "3000");
@@ -225,7 +224,11 @@ async function handlePi(body: Record<string, unknown>): Promise<{ status: number
 
   // Set model if provider and model are provided
   if (provider && modelName) {
-    sessionOptions.model = getModel(provider, modelName);
+    const model = modelRegistry.find(provider, modelName);
+    if (!model) {
+      throw new Error(`Model ${provider}/${modelName} not found`);
+    }
+    sessionOptions.model = model;
   }
 
   // Set thinking level if provided

@@ -2,14 +2,16 @@
  * Shared utilities for examples
  */
 
-import { join } from "node:path";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   createAgentSession,
   DefaultResourceLoader,
   SessionManager,
 } from "@mariozechner/pi-coding-agent";
 
-export const PI_AGENT_DIR = join(import.meta.dir, "..", ".pi");
+// Use project root as cwd so package resolution works correctly
+export const PI_AGENT_DIR = join(dirname(import.meta.filename), "..", "..");
 
 export async function createSession() {
   const resourceLoader = new DefaultResourceLoader({
