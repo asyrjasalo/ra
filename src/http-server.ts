@@ -134,7 +134,7 @@ async function handleRequest(
 
 		// Route: GET /health - Health check
 		if (path === "/health" && method === "GET") {
-			sendResponse(res, 200, { status: "ok", activeSessions: sessions.size });
+			sendResponse(res, 200, { status: "ok" });
 			return;
 		}
 
