@@ -5,8 +5,10 @@
  * Tools: pi (create session + prompt), pi-reply (continue existing session)
  */
 
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
+  type AgentSession,
   createAgentSession,
   DefaultResourceLoader,
   SessionManager,
@@ -18,17 +20,32 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 
-// In-memory session store
-const sessions = new Map<
-  string,
-  Awaited<ReturnType<typeof createAgentSession>>['session']
->();
-const sessionResources = new Map<string, DefaultResourceLoader>();
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-// Current active session ID
-let _activeSessionId: string | null = null;
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Create MCP server
+// ─── Type Definitions ─────────────────────────────────────────────────────────
+
+interface SessionEntry {
+  readonly session: AgentSession;
+  readonly resourceLoader: DefaultResourceLoader;
+}
+
+interface PiToolArgs {
+  readonly prompt: string;
+}
+
+interface PiReplyToolArgs {
+  readonly id: string;
+  readonly prompt: string;
+}
+
+// ─── State ────────────────────────────────────────────────────────────────────
+
+const sessions = new Map<string, SessionEntry>();
+
+// ─── MCP Server Setup ─────────────────────────────────────────────────────────
+
 const server = new Server(
   {
     name: 'ra',
@@ -41,7 +58,8 @@ const server = new Server(
   },
 );
 
-// Tool definitions
+// ─── Tool Definitions ─────────────────────────────────────────────────────────
+
 const TOOLS = [
   {
     name: 'pi',
@@ -74,14 +92,15 @@ const TOOLS = [
   },
 ] as const;
 
-// List tools handler
-server.setRequestHandler(ListToolsRequestSchema, async () => {
-  return { tools: TOOLS };
-});
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function getPiCwd(): string {
+  return join(__dirname, '..', '.pi');
+}
 
 // Helper to execute a prompt and collect response
 async function executePrompt(
-  session: Awaited<ReturnType<typeof createAgentSession>>['session'],
+  session: AgentSession,
   prompt: string,
 ): Promise<{ response: string }> {
   const responseParts: string[] = [];
@@ -96,18 +115,25 @@ async function executePrompt(
   });
 
   await session.prompt(prompt);
-
   unsubscribe();
+
   return { response: responseParts.join('') };
 }
 
+// ─── Request Handlers ──────────────────────────────────────────────────────────
+
+// List tools handler
+server.setRequestHandler(ListToolsRequestSchema, async () => {
+  return { tools: TOOLS };
+});
+
 // Call tool handler
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  const { name, arguments: args } = request.params;
+  const { name, arguments: args = {} } = request.params;
 
   try {
     if (name === 'pi') {
-      const prompt = args?.prompt as string;
+      const { prompt } = args as unknown as PiToolArgs;
 
       if (!prompt) {
         throw new Error("Missing 'prompt' parameter");
@@ -115,7 +141,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       // Create new session (disable extensions/skills for faster startup)
       const resourceLoader = new DefaultResourceLoader({
-        cwd: join(import.meta.dir, '..', '.pi'),
+        cwd: getPiCwd(),
         noExtensions: true,
         noSkills: true,
         noPromptTemplates: true,
@@ -130,9 +156,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         sessionManager: SessionManager.inMemory(),
       });
 
-      sessions.set(id, session);
-      sessionResources.set(id, resourceLoader);
-      _activeSessionId = id;
+      sessions.set(id, { session, resourceLoader });
 
       const { response } = await executePrompt(session, prompt);
 
@@ -148,8 +172,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
 
     if (name === 'pi-reply') {
-      const id = args?.id as string;
-      const prompt = args?.prompt as string;
+      const { id, prompt } = args as unknown as PiReplyToolArgs;
 
       if (!id) {
         throw new Error("Missing 'id' parameter");
@@ -158,7 +181,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         throw new Error("Missing 'prompt' parameter");
       }
 
-      if (!sessions.has(id)) {
+      const entry = sessions.get(id);
+      if (!entry) {
         return {
           content: [
             {
@@ -170,19 +194,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
-      const session = sessions.get(id);
-      if (!session) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify({ error: 'Session not found' }),
-            },
-          ],
-          isError: true,
-        };
-      }
-      const { response } = await executePrompt(session, prompt);
+      const { response } = await executePrompt(entry.session, prompt);
 
       return {
         content: [
@@ -207,8 +219,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 });
 
-// Main entry point
-async function main() {
+// ─── Main Entry Point ──────────────────────────────────────────────────────────
+
+async function main(): Promise<void> {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.log('Ra MCP Server running on stdio');
