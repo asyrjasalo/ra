@@ -4,6 +4,13 @@ Remote Agents over HTTP/MCP.
 
 ## Quick Start
 
+### Setup
+
+```bash
+# Set your API key
+export MINIMAX_API_KEY=your_api_key_here
+```
+
 ### CLI
 
 ```bash
@@ -19,15 +26,18 @@ ra --help         # Show help
 # Start the server
 bun run start
 
-# Create session + send first prompt (returns session id)
+# Health check
+curl http://localhost:3000/health
+
+# Create session
 curl -X POST http://localhost:3000/ra \
   -H "Content-Type: application/json" \
-  -d '{"prompt": "Hello, help me with my project"}'
+  -d '{"prompt": "What is 2+2?"}'
 
-# Continue conversation with that session id
+# Continue conversation
 curl -X POST http://localhost:3000/ra-reply \
   -H "Content-Type: application/json" \
-  -d '{"id":"session-id-here","prompt":"Continue with the next step"}'
+  -d '{"id":"session-id","prompt":"Explain that answer"}'
 ```
 
 ### MCP Server
@@ -59,9 +69,9 @@ Configure in your MCP client (e.g., Claude Desktop, Cursor):
 
 - [HTTP API](docs/http.md) - REST API endpoints and usage
 - [MCP Server](docs/mcp.md) - Model Context Protocol integration
+- [Docker](docs/docker.md) - Run in Docker
 
 ---
-
 ## Examples
 
 ```bash

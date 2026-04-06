@@ -1,0 +1,8 @@
+services:
+  ra:
+    build: .
+    ports:
+      - '3000:3000'
+    environment:
+      - MINIMAX_API_KEY=${MINIMAX_API_KEY}
+      - PI_AGENT_DIR=/app/.pi

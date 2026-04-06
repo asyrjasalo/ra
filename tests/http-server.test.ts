@@ -52,26 +52,7 @@ describe('HTTP Server', () => {
 
     const body = await res.json();
     expect(body).toHaveProperty('status', 'ok');
-    expect(body).toHaveProperty('activeSessions');
-    expect(typeof body.activeSessions).toBe('number');
   });
-
-  apiTest(
-    'GET /health with active sessions shows correct count',
-    async () => {
-      // Create a session via POST /ra
-      await fetch(`${baseUrl}/ra`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: 'What is 2+2?' }),
-      });
-
-      const healthRes = await fetch(`${baseUrl}/health`);
-      const healthBody = await healthRes.json();
-      expect(healthBody.activeSessions).toBeGreaterThanOrEqual(0);
-    },
-    120000,
-  );
 
   test('GET /nonexistent returns 404', async () => {
     const res = await fetch(`${baseUrl}/nonexistent`);

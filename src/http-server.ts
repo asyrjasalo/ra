@@ -360,7 +360,7 @@ export async function startServer(port = PORT): Promise<Server> {
 
   // Route: GET /health - Health check
   app.get('/health', (c) => {
-    return c.json({ status: 'ok', activeSessions: sessions.size });
+    return c.json({ status: 'ok' });
   });
 
   // Custom 404 handler
@@ -402,7 +402,7 @@ export function getBaseUrl(port = PORT): string {
 
 // ─── Main Entry Point ──────────────────────────────────────────────────────────
 
-const isMain = process.argv[1]?.endsWith('api/http-server.ts');
+const isMain = process.argv[1]?.endsWith('http-server.ts');
 
 if (isMain) {
   startServer().then(() => {
