@@ -13,6 +13,23 @@ import {
   stopServer,
 } from '../src/http-server';
 
+// Skip tests that require API calls when no API key is available
+const hasApiKey = () =>
+  !!process.env.MINIMAX_API_KEY ||
+  !!process.env.OPENAI_API_KEY ||
+  !!process.env.ANTHROPIC_API_KEY ||
+  !!process.env.GEMINI_API_KEY ||
+  !!process.env.ZAI_API_KEY;
+
+// Conditional test that skips when condition is true
+function apiTest(name: string, fn: () => Promise<void>, timeout?: number) {
+  if (!hasApiKey()) {
+    test.skip(name, fn, timeout);
+  } else {
+    test(name, fn, timeout);
+  }
+}
+
 describe('HTTP Server', () => {
   let baseUrl: string;
 
@@ -39,18 +56,22 @@ describe('HTTP Server', () => {
     expect(typeof body.activeSessions).toBe('number');
   });
 
-  test('GET /health with active sessions shows correct count', async () => {
-    // Create a session via POST /ra
-    await fetch(`${baseUrl}/ra`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: 'What is 2+2?' }),
-    });
+  apiTest(
+    'GET /health with active sessions shows correct count',
+    async () => {
+      // Create a session via POST /ra
+      await fetch(`${baseUrl}/ra`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: 'What is 2+2?' }),
+      });
 
-    const healthRes = await fetch(`${baseUrl}/health`);
-    const healthBody = await healthRes.json();
-    expect(healthBody.activeSessions).toBeGreaterThanOrEqual(0);
-  }, 120000);
+      const healthRes = await fetch(`${baseUrl}/health`);
+      const healthBody = await healthRes.json();
+      expect(healthBody.activeSessions).toBeGreaterThanOrEqual(0);
+    },
+    120000,
+  );
 
   test('GET /nonexistent returns 404', async () => {
     const res = await fetch(`${baseUrl}/nonexistent`);
@@ -104,37 +125,45 @@ describe('HTTP Server', () => {
     expect(body).toHaveProperty('error', 'Session not found');
   });
 
-  test('POST /ra uses default provider and model from settings.json', async () => {
-    // Create a session without specifying provider/model
-    // This should use the default provider/model from static/.pi/settings.json
-    const res = await fetch(`${baseUrl}/ra`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: 'What is 1+1?' }),
-    });
+  apiTest(
+    'POST /ra uses default provider and model from settings.json',
+    async () => {
+      // Create a session without specifying provider/model
+      // This should use the default provider/model from static/.pi/settings.json
+      const res = await fetch(`${baseUrl}/ra`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: 'What is 1+1?' }),
+      });
 
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body).toHaveProperty('id');
-    expect(body).toHaveProperty('response');
-    expect(typeof body.response).toBe('string');
-  }, 120000);
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body).toHaveProperty('id');
+      expect(body).toHaveProperty('response');
+      expect(typeof body.response).toBe('string');
+    },
+    120000,
+  );
 
-  test('POST /ra with explicit provider/model overrides defaults', async () => {
-    // Even when defaults are set, explicit provider/model should take precedence
-    const res = await fetch(`${baseUrl}/ra`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        prompt: 'What is 3+3?',
-        provider: 'minimax',
-        model: 'MiniMax-M2.7',
-      }),
-    });
+  apiTest(
+    'POST /ra with explicit provider/model overrides defaults',
+    async () => {
+      // Even when defaults are set, explicit provider/model should take precedence
+      const res = await fetch(`${baseUrl}/ra`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: 'What is 3+3?',
+          provider: 'minimax',
+          model: 'MiniMax-M2.7',
+        }),
+      });
 
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body).toHaveProperty('id');
-    expect(body).toHaveProperty('response');
-  }, 120000);
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body).toHaveProperty('id');
+      expect(body).toHaveProperty('response');
+    },
+    120000,
+  );
 });

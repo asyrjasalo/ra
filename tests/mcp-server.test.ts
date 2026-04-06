@@ -8,6 +8,23 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { resolve } from 'node:path';
 import { type Subprocess, spawn } from 'bun';
 
+// Skip tests that require API calls when no API key is available
+const hasApiKey = () =>
+  !!process.env.MINIMAX_API_KEY ||
+  !!process.env.OPENAI_API_KEY ||
+  !!process.env.ANTHROPIC_API_KEY ||
+  !!process.env.GEMINI_API_KEY ||
+  !!process.env.ZAI_API_KEY;
+
+// Conditional test that skips when condition is true
+function apiTest(name: string, fn: () => Promise<void>, timeout?: number) {
+  if (!hasApiKey()) {
+    test.skip(name, fn, timeout);
+  } else {
+    test(name, fn, timeout);
+  }
+}
+
 // JSON-RPC message types
 interface JsonRpcRequest {
   jsonrpc: '2.0';
@@ -209,30 +226,34 @@ describe('MCP Server', () => {
   // --------------------------------------------------------------------------
 
   describe('tools/call - pi', () => {
-    test('creates session and returns id', async () => {
-      const res = await sendRequest(
-        {
-          method: 'tools/call',
-          params: {
-            name: 'pi',
-            arguments: { prompt: 'What is 2+2?' },
+    apiTest(
+      'creates session and returns id',
+      async () => {
+        const res = await sendRequest(
+          {
+            method: 'tools/call',
+            params: {
+              name: 'pi',
+              arguments: { prompt: 'What is 2+2?' },
+            },
           },
-        },
-        90000,
-      );
+          90000,
+        );
 
-      expect(res.jsonrpc).toBe('2.0');
-      expect(res.result).toBeDefined();
-      const result = res.result as {
-        content: Array<{ type: string; text: string; isError?: boolean }>;
-      };
-      expect(result.content).toHaveLength(1);
-      expect(result.content[0].type).toBe('text');
-      const parsed = JSON.parse(result.content[0].text);
-      expect(parsed.id).toBeDefined();
-      expect(parsed).toHaveProperty('response');
-      expect(typeof parsed.response).toBe('string');
-    }, 120000);
+        expect(res.jsonrpc).toBe('2.0');
+        expect(res.result).toBeDefined();
+        const result = res.result as {
+          content: Array<{ type: string; text: string; isError?: boolean }>;
+        };
+        expect(result.content).toHaveLength(1);
+        expect(result.content[0].type).toBe('text');
+        const parsed = JSON.parse(result.content[0].text);
+        expect(parsed.id).toBeDefined();
+        expect(parsed).toHaveProperty('response');
+        expect(typeof parsed.response).toBe('string');
+      },
+      120000,
+    );
 
     test('returns error for missing prompt', async () => {
       const res = await sendRequest({
@@ -257,45 +278,49 @@ describe('MCP Server', () => {
   // --------------------------------------------------------------------------
 
   describe('tools/call - pi-reply', () => {
-    test('sends reply to existing session', async () => {
-      // First create a session
-      const createRes = await sendRequest(
-        {
-          method: 'tools/call',
-          params: {
-            name: 'pi',
-            arguments: { prompt: 'Hello' },
+    apiTest(
+      'sends reply to existing session',
+      async () => {
+        // First create a session
+        const createRes = await sendRequest(
+          {
+            method: 'tools/call',
+            params: {
+              name: 'pi',
+              arguments: { prompt: 'Hello' },
+            },
           },
-        },
-        90000,
-      );
-      const createResult = JSON.parse(
-        (createRes.result as { content: Array<{ text: string }> }).content[0]
-          .text,
-      );
-      const sessionId = createResult.id;
+          90000,
+        );
+        const createResult = JSON.parse(
+          (createRes.result as { content: Array<{ text: string }> }).content[0]
+            .text,
+        );
+        const sessionId = createResult.id;
 
-      // Then reply
-      const res = await sendRequest(
-        {
-          method: 'tools/call',
-          params: {
-            name: 'pi-reply',
-            arguments: { id: sessionId, prompt: 'Continue' },
+        // Then reply
+        const res = await sendRequest(
+          {
+            method: 'tools/call',
+            params: {
+              name: 'pi-reply',
+              arguments: { id: sessionId, prompt: 'Continue' },
+            },
           },
-        },
-        90000,
-      );
+          90000,
+        );
 
-      expect(res.jsonrpc).toBe('2.0');
-      expect(res.result).toBeDefined();
-      const result = res.result as {
-        content: Array<{ type: string; text: string }>;
-      };
-      const parsed = JSON.parse(result.content[0].text);
-      expect(parsed.id).toBe(sessionId);
-      expect(parsed).toHaveProperty('response');
-    }, 180000);
+        expect(res.jsonrpc).toBe('2.0');
+        expect(res.result).toBeDefined();
+        const result = res.result as {
+          content: Array<{ type: string; text: string }>;
+        };
+        const parsed = JSON.parse(result.content[0].text);
+        expect(parsed.id).toBe(sessionId);
+        expect(parsed).toHaveProperty('response');
+      },
+      180000,
+    );
 
     test('returns error for non-existent session', async () => {
       const res = await sendRequest({
@@ -377,67 +402,78 @@ describe('MCP Server', () => {
   // ---------------------------------------------------------------------------
 
   describe('default provider/model from settings', () => {
-    test('pi tool uses default provider and model from settings.json', async () => {
-      // The MCP server should load default provider/model from .pi/settings.json
-      const res = await sendRequest(
-        {
-          method: 'tools/call',
-          params: {
-            name: 'pi',
-            arguments: { prompt: 'Say "hello" only' },
+    apiTest(
+      'pi tool uses default provider and model from settings.json',
+      async () => {
+        // The MCP server should load default provider/model from .pi/settings.json
+        const res = await sendRequest(
+          {
+            method: 'tools/call',
+            params: {
+              name: 'pi',
+              arguments: { prompt: 'Say "hello" only' },
+            },
           },
-        },
-        90000,
-      );
+          90000,
+        );
 
-      expect(res.jsonrpc).toBe('2.0');
-      expect(res.result).toBeDefined();
-      const result = res.result as {
-        content: Array<{ type: string; text: string; isError?: boolean }>;
-      };
-      expect(result.content).toHaveLength(1);
-      const parsed = JSON.parse(result.content[0].text);
-      expect(parsed.id).toBeDefined();
-      expect(parsed).toHaveProperty('response');
-    }, 120000);
+        expect(res.jsonrpc).toBe('2.0');
+        expect(res.result).toBeDefined();
+        const result = res.result as {
+          content: Array<{ type: string; text: string; isError?: boolean }>;
+        };
+        expect(result.content).toHaveLength(1);
+        const parsed = JSON.parse(result.content[0].text);
+        expect(parsed.id).toBeDefined();
+        expect(parsed).toHaveProperty('response');
+      },
+      120000,
+    );
 
-    test('pi-reply continues session with same model', async () => {
-      // Create a session using defaults
-      const createRes = await sendRequest(
-        {
-          method: 'tools/call',
-          params: {
-            name: 'pi',
-            arguments: { prompt: 'Remember my favorite number is 42' },
+    apiTest(
+      'pi-reply continues session with same model',
+      async () => {
+        // Create a session using defaults
+        const createRes = await sendRequest(
+          {
+            method: 'tools/call',
+            params: {
+              name: 'pi',
+              arguments: { prompt: 'Remember my favorite number is 42' },
+            },
           },
-        },
-        90000,
-      );
-      const createResult = JSON.parse(
-        (createRes.result as { content: Array<{ text: string }> }).content[0]
-          .text,
-      );
-      const sessionId = createResult.id;
+          90000,
+        );
+        const createResult = JSON.parse(
+          (createRes.result as { content: Array<{ text: string }> }).content[0]
+            .text,
+        );
+        const sessionId = createResult.id;
 
-      // Continue the session
-      const res = await sendRequest(
-        {
-          method: 'tools/call',
-          params: {
-            name: 'pi-reply',
-            arguments: { id: sessionId, prompt: 'What is my favorite number?' },
+        // Continue the session
+        const res = await sendRequest(
+          {
+            method: 'tools/call',
+            params: {
+              name: 'pi-reply',
+              arguments: {
+                id: sessionId,
+                prompt: 'What is my favorite number?',
+              },
+            },
           },
-        },
-        90000,
-      );
+          90000,
+        );
 
-      expect(res.jsonrpc).toBe('2.0');
-      const result = res.result as {
-        content: Array<{ type: string; text: string }>;
-      };
-      const parsed = JSON.parse(result.content[0].text);
-      expect(parsed.id).toBe(sessionId);
-      expect(parsed).toHaveProperty('response');
-    }, 180000);
+        expect(res.jsonrpc).toBe('2.0');
+        const result = res.result as {
+          content: Array<{ type: string; text: string }>;
+        };
+        const parsed = JSON.parse(result.content[0].text);
+        expect(parsed.id).toBe(sessionId);
+        expect(parsed).toHaveProperty('response');
+      },
+      180000,
+    );
   });
 });
