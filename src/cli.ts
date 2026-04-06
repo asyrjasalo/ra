@@ -22,7 +22,7 @@ Usage:
   ra --help         Show this help
 
 Options:
-  --port <n>        Port for HTTP server (default: 8080)
+  --port <n>        Port for HTTP server (default: 3000)
   --help            Show this help
 `.trim(),
 	);
@@ -35,12 +35,12 @@ async function main() {
 	const { values } = parseArgs({
 		args,
 		options: {
-			port: { type: "string", default: "8080" },
+			port: { type: "string", default: "3000" },
 		},
 		allowPositionals: true,
 	});
 
-	const port = parseInt(values.port as string, 10) || 8080;
+	const port = parseInt(values.port as string, 10) || 3000;
 
 	const positional = args.find((a) => !a.startsWith("-")) || "";
 

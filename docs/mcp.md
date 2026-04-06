@@ -21,14 +21,14 @@ Add to your MCP client config (e.g., Claude Desktop, Cursor, etc.):
 Or run standalone:
 
 ```bash
-bun run start:mcp
+ra mcp
 ```
 
 ---
 
 ## Tools
 
-### `ra`
+### `pi`
 
 Create a new session and send the first prompt. Returns the session ID and the agent's text response.
 
@@ -37,7 +37,10 @@ Create a new session and send the first prompt. Returns the session ID and the a
 ```json
 {
   "prompt": "List all TypeScript files in this project",
-  "timeout": 120000
+  "timeout": 120000,
+  "provider": "anthropic",
+  "model": "claude-3-5-sonnet-20241022",
+  "thinkingLevel": "high"
 }
 ```
 
@@ -45,6 +48,9 @@ Create a new session and send the first prompt. Returns the session ID and the a
 |-------|------|----------|-------------|
 | `prompt` | string | Yes | The prompt to send to the agent |
 | `timeout` | number | No | Timeout in ms (default: 120000) |
+| `provider` | string | No | Model provider (e.g., "anthropic") |
+| `model` | string | No | Model name (e.g., "claude-3-5-sonnet-20241022") |
+| `thinkingLevel` | string | No | Thinking level: "off", "low", "medium", "high" |
 
 **Response:**
 
@@ -59,7 +65,7 @@ Create a new session and send the first prompt. Returns the session ID and the a
 
 ---
 
-### `ra-reply`
+### `pi-reply`
 
 Send a continuation prompt to an existing session.
 
@@ -121,6 +127,6 @@ Errors return `isError: true` with the error message:
 
 ## Session Management
 
-Sessions are stored in-memory on the server. For long-running workflows, maintain the session ID returned by `ra` and pass it to subsequent `ra-reply` calls.
+Sessions are stored in-memory on the server. For long-running workflows, maintain the session ID returned by `pi` and pass it to subsequent `pi-reply` calls.
 
 The server does not persist sessions - restart the server to clear all sessions.

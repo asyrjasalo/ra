@@ -8,7 +8,7 @@ Remote Agent framework.
 
 ```bash
 # Install as global tool (after npm link)
-ra serve          # Start HTTP API server on port 8080
+ra serve          # Start HTTP API server on port 3000
 ra mcp            # Start MCP server on stdio
 ra --help         # Show help
 ```
