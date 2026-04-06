@@ -1,0 +1,14 @@
+{
+  // Ignore standalone example scripts that are meant to be run directly
+  "ignoreFiles": [
+    "examples/sdk/**"
+  ],
+  // Ignore packages used via lint-staged (not direct imports)
+  "ignoreDependencies": [
+    "@secretlint/secretlint-rule-preset-recommend"
+  ],
+  // Ignore submodule directories
+  "ignore": [
+    ".pi/git/**"
+  ]
+}
