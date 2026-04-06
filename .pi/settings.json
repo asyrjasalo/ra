@@ -2,7 +2,6 @@
   "defaultModel": "MiniMax-M2.7",
   "defaultProvider": "minimax",
   "packages": [
-    "npm:pi-lens",
     "npm:pi-mcp-adapter",
     "npm:pi-rtk-optimizer",
     "npm:pi-web-access",
