@@ -1,5 +1,5 @@
 /** Path segments Biome ignores (see biome.json files.includes). */
-const BIOME_IGNORED_SEGMENTS = new Set(['.pi', '.pi-lens'])
+const BIOME_IGNORED_SEGMENTS = new Set(['.pi'])
 
 function isBiomeIgnoredPath(filePath) {
   return filePath
