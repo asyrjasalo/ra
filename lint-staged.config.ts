@@ -1,3 +1,10 @@
+import type { SimpleGitRejectableFunction } from 'lint-staged';
+
+type ConfigRule = Record<
+  string,
+  string | string[] | SimpleGitRejectableFunction
+>;
+
 /** Path segments Biome ignores (see biome.json files.includes). */
 const BIOME_IGNORED_SEGMENTS = new Set(['.pi']);
 
@@ -8,7 +15,7 @@ function isBiomeIgnoredPath(filePath: string): boolean {
     .some((segment) => BIOME_IGNORED_SEGMENTS.has(segment));
 }
 
-const config = {
+const config: ConfigRule = {
   '*.{ts,js,json}': (files: readonly string[]) => {
     const toLint = files.filter((f) => !isBiomeIgnoredPath(f));
     if (toLint.length === 0) return [];
@@ -18,6 +25,7 @@ const config = {
     return `secretlint ${files.join(' ')}`;
   },
   '*.md': 'markdownlint-cli2 fix',
+  '*.{ts,js,md}': 'cspell lint',
 };
 
 export default config;

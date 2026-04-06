@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json
+
+# The version of the configuration file format.
+version: "0.2"
+# The locale to use when spell checking. (e.g., en, en-GB, de-DE
+language: en
+
+# Exclude these directories from spell checking
+ignorePaths:
+  - .pi
+  - node_modules
+  - dist
+  - coverage
+  - examples
+
+# Words to add to the dictionary
+words:
+  - mariozechner
+  - modelcontextprotocol
