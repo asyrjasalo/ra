@@ -8,9 +8,7 @@
     },
     "scripts": {
         "dev": "bun --watch run src/cli.ts",
-        "start": "bun run src/cli.ts serve",
-        "start:http": "bun run src/http-server.ts",
-        "start:mcp": "bun run src/mcp-server.ts",
+        "start": "bun run src/cli.ts",
         "test": "bun test",
         "lint": "biome check .",
         "lint:fix": "biome check --write .",
