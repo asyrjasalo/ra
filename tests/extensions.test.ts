@@ -9,6 +9,23 @@ import {
   SettingsManager,
 } from '@mariozechner/pi-coding-agent';
 
+// Skip tests that require API calls when no API key is available
+const hasApiKey = () =>
+  !!process.env.MINIMAX_API_KEY ||
+  !!process.env.OPENAI_API_KEY ||
+  !!process.env.ANTHROPIC_API_KEY ||
+  !!process.env.GEMINI_API_KEY ||
+  !!process.env.ZAI_API_KEY;
+
+// Conditional test that skips when condition is true
+function apiTest(name: string, fn: () => Promise<void>, timeout?: number) {
+  if (!hasApiKey()) {
+    test.skip(name, fn, timeout);
+  } else {
+    test(name, fn, timeout);
+  }
+}
+
 const PI_PROJECT_DIR = join(dirname(import.meta.filename), '..');
 const PI_AGENT_DIR = getAgentDir();
 
@@ -57,14 +74,14 @@ async function createSession() {
 }
 
 describe('Extensions Loading', () => {
-  test('extensions are loaded from project settings', async () => {
+  apiTest('extensions are loaded from project settings', async () => {
     const { extensionsResult } = await createSession();
 
     expect(extensionsResult.extensions.length).toBeGreaterThan(0);
     expect(extensionsResult.errors.length).toBe(0);
   });
 
-  test('pi-prompt-enhancer extension is loaded', async () => {
+  apiTest('pi-prompt-enhancer extension is loaded', async () => {
     const { extensionsResult } = await createSession();
 
     const enhancerExt = extensionsResult.extensions.find((ext) =>
@@ -74,7 +91,7 @@ describe('Extensions Loading', () => {
     expect(enhancerExt).toBeDefined();
   });
 
-  test('/enhance command is registered in extension', async () => {
+  apiTest('/enhance command is registered in extension', async () => {
     const { extensionsResult } = await createSession();
 
     // Find the pi-prompt-enhancer extension and check it has the enhance command
