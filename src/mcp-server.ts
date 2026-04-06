@@ -1,7 +1,7 @@
 /**
- * Pi Coding Agent MCP Server
+ * Ra MCP Server
  *
- * Exposes pi-coding-agent sessions as MCP tools for stdio communication.
+ * Exposes Ra sessions as MCP tools for stdio communication.
  * Tools: pi (create session + prompt), pi-reply (continue existing session)
  */
 
@@ -31,7 +31,7 @@ let _activeSessionId: string | null = null;
 // Create MCP server
 const server = new Server(
 	{
-		name: "pi-coding-agent",
+		name: "ra",
 		version: "1.0.0",
 	},
 	{
@@ -45,8 +45,7 @@ const server = new Server(
 const TOOLS = [
 	{
 		name: "pi",
-		description:
-			"Create a new pi-coding-agent session and send the first prompt",
+		description: "Create a new Ra session and send the first prompt",
 		inputSchema: {
 			type: "object",
 			properties: {
@@ -233,7 +232,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function main() {
 	const transport = new StdioServerTransport();
 	await server.connect(transport);
-	console.log("Pi Coding Agent MCP Server running on stdio");
+	console.log("Ra MCP Server running on stdio");
 }
 
 main().catch(console.error);

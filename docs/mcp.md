@@ -1,4 +1,4 @@
-# Pi Coding Agent MCP Server
+# Ra MCP Server
 
 The MCP server exposes two tools via stdio for Model Context Protocol clients.
 
@@ -10,9 +10,9 @@ Add to your MCP client config (e.g., Claude Desktop, Cursor, etc.):
 
 ```json
 "mcpServers": {
-  "pi-coding-agent": {
+  "ra": {
     "command": "bun",
-    "args": ["run", "api/mcp-server.ts"],
+    "args": ["run", "src/mcp-server.ts"],
     "cwd": "/path/to/ra"
   }
 }
@@ -28,7 +28,7 @@ bun run start:mcp
 
 ## Tools
 
-### `pi`
+### `ra`
 
 Create a new session and send the first prompt. Returns the session ID and the agent's text response.
 
@@ -52,14 +52,14 @@ Create a new session and send the first prompt. Returns the session ID and the a
 {
   "content": [{
     "type": "text",
-    "text": "{\"id\":\"550e8400-e29b-41d4-a716-446655440000\",\"response\":\"Based on my analysis...\"}"
+    "text": "{\"id\":\"550e8400-e29b-41d4-a716-446655440000\",\"response\":\"Based on my analysis...\",\"timedOut\":false}"
   }]
 }
 ```
 
 ---
 
-### `pi-reply`
+### `ra-reply`
 
 Send a continuation prompt to an existing session.
 
@@ -85,7 +85,7 @@ Send a continuation prompt to an existing session.
 {
   "content": [{
     "type": "text",
-    "text": "{\"id\":\"550e8400-...\",\"response\":\"I'll refactor the core module...\"}"
+    "text": "{\"id\":\"550e8400-...\",\"response\":\"I'll refactor the core module...\",\"timedOut\":false}"
   }]
 }
 ```
@@ -99,7 +99,8 @@ The response body contains a JSON string with:
 ```json
 {
   "id": "session-uuid",
-  "response": "The agent's text response to the prompt"
+  "response": "The agent's text response to the prompt",
+  "timedOut": false
 }
 ```
 
@@ -120,6 +121,6 @@ Errors return `isError: true` with the error message:
 
 ## Session Management
 
-Sessions are stored in-memory on the server. For long-running workflows, maintain the session ID returned by `pi` and pass it to subsequent `pi-reply` calls.
+Sessions are stored in-memory on the server. For long-running workflows, maintain the session ID returned by `ra` and pass it to subsequent `ra-reply` calls.
 
 The server does not persist sessions - restart the server to clear all sessions.

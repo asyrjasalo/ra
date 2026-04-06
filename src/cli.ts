@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 /**
- * ra CLI - Pi Coding Agent command-line interface
+ * ra CLI - Command-line interface
  *
  * Usage:
  *   ra serve          Start HTTP API server
@@ -14,7 +14,7 @@ import { parseArgs } from "node:util";
 function showHelp() {
 	console.log(
 		`
-ra - Pi Coding Agent CLI
+ra - CLI
 
 Usage:
   ra serve          Start HTTP API server
@@ -32,8 +32,6 @@ async function main() {
 	const args = process.argv.slice(2);
 
 	// Parse flags before subcommand
-	let port = 8080;
-
 	const { values } = parseArgs({
 		args,
 		options: {
@@ -42,7 +40,7 @@ async function main() {
 		allowPositionals: true,
 	});
 
-	port = parseInt(values.port as string, 10) || 8080;
+	const port = parseInt(values.port as string, 10) || 8080;
 
 	const positional = args.find((a) => !a.startsWith("-")) || "";
 

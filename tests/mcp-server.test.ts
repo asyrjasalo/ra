@@ -143,7 +143,7 @@ describe("MCP Server", () => {
 				capabilities: Record<string, unknown>;
 				serverInfo: { name: string; version: string };
 			};
-			expect(result.serverInfo.name).toBe("pi-coding-agent");
+			expect(result.serverInfo.name).toBe("ra");
 			expect(result.serverInfo.version).toBe("1.0.0");
 			expect(result.capabilities.tools).toBeDefined();
 		});

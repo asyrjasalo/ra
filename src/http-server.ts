@@ -350,7 +350,7 @@ const isMain = process.argv[1]?.endsWith("api/http-server.ts");
 
 if (isMain) {
 	startServer().then(() => {
-		console.log(`Pi Coding Agent API running at http://localhost:${PORT}`);
+		console.log(`Ra API running at http://localhost:${PORT}`);
 		console.log(
 			"Endpoints: POST /ra, POST /ra-reply, GET /openapi.yaml, GET /openapi.json, GET /health",
 		);

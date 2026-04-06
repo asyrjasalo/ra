@@ -41,7 +41,7 @@ describe("ra CLI", () => {
 	test("shows help with no arguments", async () => {
 		const { stdout, exitCode } = await runCli([]);
 		expect(exitCode).toBe(0);
-		expect(stdout.includes("ra - Pi Coding Agent CLI")).toBe(true);
+		expect(stdout.includes("ra - CLI")).toBe(true);
 	});
 
 	test("serve command starts HTTP server", async () => {

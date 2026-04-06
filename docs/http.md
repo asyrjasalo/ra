@@ -1,6 +1,6 @@
-# Pi Coding Agent HTTP API
+# Ra HTTP API
 
-REST API for pi-coding-agent session management.
+REST API for session management.
 
 ## Quick Start
 
@@ -9,7 +9,7 @@ REST API for pi-coding-agent session management.
 bun run start
 
 # Create session + send first prompt
-curl -X POST http://localhost:3000/pi \
+curl -X POST http://localhost:3000/ra \
   -H "Content-Type: application/json" \
   -d '{"prompt": "Hello, help me with my project"}'
 ```
@@ -26,14 +26,14 @@ http://localhost:3000
 
 ## Endpoints
 
-### POST /pi
+### POST /ra
 
 Create a new session and send the first prompt. Returns the session ID and the agent's text response.
 
 **Request:**
 
 ```bash
-curl -X POST http://localhost:3000/pi \
+curl -X POST http://localhost:3000/ra \
   -H "Content-Type: application/json" \
   -d '{"prompt": "What files are in my project?", "timeout": 120000}'
 ```
@@ -42,37 +42,43 @@ curl -X POST http://localhost:3000/pi \
 |-------|------|----------|-------------|
 | `prompt` | string | Yes | The prompt to send |
 | `timeout` | number | No | Timeout in ms (default: 120000) |
+| `provider` | string | No | Model provider (e.g., "anthropic") |
+| `model` | string | No | Model name (e.g., "claude-3-5-sonnet-20241022") |
+| `thinkingLevel` | string | No | Thinking level: "off", "low", "medium", "high" |
 
 **Response:**
 
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
-  "response": "Based on my analysis, the current directory contains:\n\n- api/\n- examples/\n- static/\n- tests/"
+  "response": "Based on my analysis, the current directory contains:\n\n- api/\n- examples/\n- static/\n- tests/",
+  "timedOut": false
 }
 ```
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `id` | string | Session ID for subsequent requests |
-| `response` | string | The agent's text response to the prompt |
+| `response` | string | The agent's text response |
+| `timedOut` | boolean | Whether the request timed out |
 
 | Status | Description |
 |--------|-------------|
 | `200` | Success |
-| `400` | Missing `prompt` |
+| `400` | Missing `prompt` or invalid parameters |
+| `408` | Request timed out (partial response returned) |
 | `500` | Internal error |
 
 ---
 
-### POST /pi-reply
+### POST /ra-reply
 
 Send a continuation prompt to an existing session.
 
 **Request:**
 
 ```bash
-curl -X POST http://localhost:3000/pi-reply \
+curl -X POST http://localhost:3000/ra-reply \
   -H "Content-Type: application/json" \
   -d '{"id": "550e8400-...", "prompt": "Continue with the next step"}'
 ```
@@ -88,20 +94,17 @@ curl -X POST http://localhost:3000/pi-reply \
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
-  "response": "I'll continue with the next step..."
+  "response": "I'll continue with the next step...",
+  "timedOut": false
 }
 ```
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | string | Session ID |
-| `response` | string | The agent's text response to the prompt |
 
 | Status | Description |
 |--------|-------------|
 | `200` | Success |
 | `400` | Missing `id` or `prompt` |
 | `404` | Session not found |
+| `408` | Request timed out |
 | `500` | Internal error |
 
 ---
@@ -157,6 +160,7 @@ curl http://localhost:3000/health
 |--------|---------|
 | `400` | Bad request (missing required fields) |
 | `404` | Resource not found |
+| `408` | Request timed out |
 | `500` | Internal server error |
 
 ---

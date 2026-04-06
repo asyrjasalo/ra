@@ -2,7 +2,8 @@
 	"name": "ra",
 	"version": "1.0.0",
 	"type": "module",
-	"description": "TypeScript project demonstrating pi-coding-agent SDK usage",
+	"description": "TypeScript project demonstrating SDK usage",
+	"license": "MIT",
 	"bin": {
 		"ra": "./src/cli.ts"
 	},

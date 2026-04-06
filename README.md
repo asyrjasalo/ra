@@ -1,8 +1,17 @@
 # Ra
 
-Demonstrates programmatic usage of `@mariozechner/pi-coding-agent`.
+Remote Agent framework.
 
 ## Quick Start
+
+### CLI
+
+```bash
+# Install as global tool (after npm link)
+ra serve          # Start HTTP API server on port 8080
+ra mcp            # Start MCP server on stdio
+ra --help         # Show help
+```
 
 ### HTTP API
 
@@ -11,30 +20,25 @@ Demonstrates programmatic usage of `@mariozechner/pi-coding-agent`.
 bun run start
 
 # Create session + send first prompt (returns session id)
-curl -X POST http://localhost:3000/pi \
+curl -X POST http://localhost:3000/ra \
   -H "Content-Type: application/json" \
   -d '{"prompt": "Hello, help me with my project"}'
 
 # Continue conversation with that session id
-curl -X POST http://localhost:3000/pi-reply \
+curl -X POST http://localhost:3000/ra-reply \
   -H "Content-Type: application/json" \
   -d '{"id":"session-id-here","prompt":"Continue with the next step"}'
 ```
 
 ### MCP Server
 
-```bash
-# Run the MCP server (stdio-based)
-bun run start:mcp
-```
-
 Configure in your MCP client (e.g., Claude Desktop, Cursor):
 
 ```json
 "mcpServers": {
-  "pi-coding-agent": {
+  "ra": {
     "command": "bun",
-    "args": ["run", "api/mcp-server.ts"],
+    "args": ["run", "src/mcp-server.ts"],
     "cwd": "/path/to/ra"
   }
 }
@@ -42,41 +46,34 @@ Configure in your MCP client (e.g., Claude Desktop, Cursor):
 
 ---
 
-## API Reference
+## Features
 
-- **OpenAPI Spec**: `GET /openapi.yaml` or `GET /openapi.json`
+- **Session management**: Create sessions, continue conversations
+- **Model selection**: Specify provider/model via API parameters
+- **Thinking levels**: Control thinking (off, low, medium, high)
+- **Timeout support**: Configurable request timeouts
+- **MCP integration**: Works with any MCP-compatible client
 
-### HTTP Endpoints
+---
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/pi` | Create session + send first prompt |
-| `POST` | `/pi-reply` | Continue session with prompt |
-| `GET` | `/openapi.yaml` | OpenAPI spec as YAML |
-| `GET` | `/openapi.json` | OpenAPI spec as JSON |
+## Documentation
 
-### MCP Tools
-
-| Tool | Description |
-|------|-------------|
-| `pi` | Create session + send first prompt |
-| `pi-reply` | Continue session (requires session `id`) |
+- [HTTP API](docs/http.md) - REST API endpoints and usage
+- [MCP Server](docs/mcp.md) - Model Context Protocol integration
 
 ---
 
 ## Examples
 
-Run the example scripts:
-
 ```bash
-bun run examples/01-minimal.ts
-bun run examples/02-multi-turn.ts
-bun run examples/03-read-only.ts
-bun run examples/04-enhance.ts
-bun run examples/05-execute-skill.ts
-bun run examples/06-skill-filtering.ts
-bun run examples/07-list-extensions.ts
-bun run examples/08-web-search.ts
+bun run examples/sdk/01-minimal.ts
+bun run examples/sdk/02-multi-turn.ts
+bun run examples/sdk/03-read-only.ts
+bun run examples/sdk/04-enhance.ts
+bun run examples/sdk/05-execute-skill.ts
+bun run examples/sdk/06-skill-filtering.ts
+bun run examples/sdk/07-list-extensions.ts
+bun run examples/sdk/08-web-search.ts
 ```
 
 | File | Description |
@@ -100,15 +97,16 @@ Sessions use settings from `~/.pi/agent` by default. Override with `PI_AGENT_DIR
 PI_AGENT_DIR=/path/to/config bun run start
 ```
 
-## Tests
+---
+
+## Development
 
 ```bash
-bun test
+bun run dev        # Watch mode for development
+bun run start      # Start HTTP server
+bun run test       # Run tests
+bun run lint       # Lint code
+bun run lint:fix   # Fix linting issues
 ```
 
 ---
-
-## Links
-
-- [pi-coding-agent](https://github.com/badlogic/pi-mono)
-- [pi.dev](https://pi.dev)
