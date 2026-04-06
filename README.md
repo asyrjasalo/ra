@@ -1,6 +1,6 @@
-# Ra
+# ra
 
-Remote Agent framework.
+Remote Agents over HTTP/MCP.
 
 ## Quick Start
 

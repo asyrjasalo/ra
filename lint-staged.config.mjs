@@ -14,4 +14,7 @@ export default {
     if (toLint.length === 0) return []
     return `biome check --write ${toLint.join(' ')}`
   },
+  '*.{js,ts,json,md,yaml,yml,toml,css,html}': (files) => {
+    return `secretlint ${files.join(' ')}`
+  },
 }
