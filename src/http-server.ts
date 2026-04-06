@@ -61,8 +61,7 @@ interface SessionEntry {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-// biome-ignore lint/complexity/useLiteralKeys: Node.js process.env requires bracket notation with strict index signature
-const PORT = parseInt(process.env['PORT'] ?? '3000', 10);
+const PORT = parseInt(process.env.PORT ?? '3000', 10);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -198,7 +197,6 @@ async function handlePi(
   const authStorage = AuthStorage.create();
   const modelRegistry = ModelRegistry.create(authStorage);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sessionOptions: CreateAgentSessionOptions = {
     resourceLoader,
     sessionManager: SessionManager.inMemory(),
@@ -361,7 +359,6 @@ export async function startServer(port = PORT): Promise<Server> {
       port,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     server = httpServer as unknown as Server;
 
     httpServer.on('error', reject);
