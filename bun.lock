@@ -21,6 +21,7 @@
         "pi-image-tools": "latest",
         "pi-interactive-shell": "latest",
         "pi-interview": "latest",
+        "pi-lens": "latest",
         "pi-markdown-preview": "latest",
         "pi-mcp-adapter": "latest",
         "pi-powerline-footer": "latest",
@@ -667,6 +668,8 @@
 
     "pi-interview": ["pi-interview@0.6.1", "", { "bin": { "pi-interview": "bin/install.js" } }, "sha512-L8b1pLD1LRCSXDCvcGFY4Bri4blp1/dhQBKt8kRdDgZpTNRW1UFNDEUzihH15KcL3pE0ulsckGwrMe9B5Ww4mw=="],
 
+    "pi-lens": ["pi-lens@3.8.3", "", { "dependencies": { "@sinclair/typebox": "^0.34.0", "cross-spawn": "^7.0.6", "vscode-jsonrpc": "^8.2.1" }, "optionalDependencies": { "tree-sitter-wasms": "npm:null@^0.11.0", "web-tree-sitter": "^0.25.10" }, "peerDependencies": { "@mariozechner/pi-coding-agent": "*" } }, "sha512-RISa8cxkXUOhLD8BDOL7gMW6LCF4argTFtFHj6B7zJpUqmP5NjtDZxS9mrukseuVrrqjaltrYLx6nX2SmlbE1A=="],
+
     "pi-markdown-preview": ["pi-markdown-preview@0.9.6", "", { "dependencies": { "puppeteer-core": "^24.22.3" }, "peerDependencies": { "@mariozechner/pi-coding-agent": "*", "@mariozechner/pi-tui": "*" } }, "sha512-Y6AcgApgubJXdSqzIuFoBO6cuVvjsr5uEmsDQKBYXxW87l72cQOdy+VXZD9Kri4FS+qMeqInJa9V2nFo/t+2DA=="],
 
     "pi-mcp-adapter": ["pi-mcp-adapter@2.2.2", "", { "dependencies": { "@modelcontextprotocol/ext-apps": "^1.2.2", "@modelcontextprotocol/sdk": "^1.25.1", "@sinclair/typebox": "^0.32.0", "zod": "^3.25.0 || ^4.0.0" }, "bin": { "pi-mcp-adapter": "cli.js" } }, "sha512-aT7eKpjYP558ZiYrlmCABNTuzUiw8eRY10rpgrygsZWfdfo5eC51Jc+NuB0V+lZ+5uGHwPJcZLPadmeO1zXQSA=="],
@@ -807,7 +810,11 @@
 
     "vary": ["vary@1.1.2", "", {}, "sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg=="],
 
+    "vscode-jsonrpc": ["vscode-jsonrpc@8.2.1", "", {}, "sha512-kdjOSJ2lLIn7r1rtrMbbNCHjyMPfRnowdKjBQ+mGq6NAW5QY2bEZC/khaC5OR8svbbjvLEaIXkOq45e2X9BIbQ=="],
+
     "web-streams-polyfill": ["web-streams-polyfill@3.3.3", "", {}, "sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw=="],
+
+    "web-tree-sitter": ["web-tree-sitter@0.25.10", "", { "peerDependencies": { "@types/emscripten": "^1.40.0" }, "optionalPeers": ["@types/emscripten"] }, "sha512-Y09sF44/13XvgVKgO2cNDw5rGk6s26MgoZPXLESvMXeefBf7i6/73eFurre0IsTW6E14Y0ArIzhUMmjoc7xyzA=="],
 
     "webdriver-bidi-protocol": ["webdriver-bidi-protocol@0.4.1", "", {}, "sha512-ARrjNjtWRRs2w4Tk7nqrf2gBI0QXWuOmMCx2hU+1jUt6d00MjMxURrhxhGbrsoiZKJrhTSTzbIrc554iKI10qw=="],
 
