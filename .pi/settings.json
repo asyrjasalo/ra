@@ -1,6 +1,6 @@
 {
-  "defaultModel": "glm-5",
-  "defaultProvider": "zai",
+  "defaultModel": "MiniMax-M2.7",
+  "defaultProvider": "minimax",
   "packages": [
     "npm:pi-lens",
     "npm:pi-mcp-adapter",
@@ -8,7 +8,6 @@
     "npm:pi-web-access",
     "npm:@danchamorro/pi-prompt-enhancer",
     "git:github.com/davebcn87/pi-autoresearch"
-
   ],
   "transport": "auto",
   "hideThinkingBlock": true,

@@ -44,13 +44,13 @@ describe('HTTP Server', () => {
     await fetch(`${baseUrl}/ra`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: 'test' }),
+      body: JSON.stringify({ prompt: 'What is 2+2?' }),
     });
 
     const healthRes = await fetch(`${baseUrl}/health`);
     const healthBody = await healthRes.json();
     expect(healthBody.activeSessions).toBeGreaterThanOrEqual(0);
-  });
+  }, 120000);
 
   test('GET /nonexistent returns 404', async () => {
     const res = await fetch(`${baseUrl}/nonexistent`);
